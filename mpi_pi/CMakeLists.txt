@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(CalculatePI CXX)
 
-find_package (MPI REQUIRED)
+find_package(MPI REQUIRED)
 
 include_directories(${MPI_CXX_INCLUDE_PATH})
 
