@@ -4,6 +4,9 @@
 #include <Windows.h>
 #include <WinUser.h>
 
+// cstd
+#include <cassert>
+
 // std
 #include <chrono>
 #include <cassert>
@@ -24,24 +27,21 @@ struct MyData {
 
 int intensive_task(const HWND hWnd, const UINT messagevar) {
 	{
-		auto data = std::make_unique<MyData>(L"Doing intensive task...");
+		MyData data(L"Doing intensive task...");
+		// SendMessage waits until the window procedure finishes processing the message.
 		// PostMessage posts the message to the listening thread's queue and returns immediately, without waiting for the result
-		// We need to pay attention that does does not get deleted in the meantime -> copy or allocate on the heap
-		if (!::PostMessageW(hWnd, messagevar, reinterpret_cast<WPARAM>(data.release()), 0)) {
-			throw std::runtime_error("Unable to post firs message!");
-		}
+		// If we would use PostMessage, memory handling gets more complicated since we need to track who is owning the resource
+		static_assert(sizeof(WPARAM) == sizeof(&data), "");
+		const auto res = ::SendMessageW(hWnd, messagevar, reinterpret_cast<WPARAM>(&data), 0);
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(2));
 
 	{
-		auto data = std::make_unique<MyData>(L"Finished intensive task!");
-		// SendMessage waits until the window procedure finishes processing the message.
-		// We could safely delete the data, in this case we are calling the same function as before
-		if (!::SendMessageW(hWnd, messagevar, reinterpret_cast<WPARAM>(data.release()), 0)) {
-			throw std::runtime_error("Unable to send last message!");
-		}
+		MyData data(L"Finished...");
+		const auto res = ::SendMessageW(hWnd, messagevar, reinterpret_cast<WPARAM>(&data), 0);
 	}
+
 	return 42;
 }
 
@@ -55,7 +55,8 @@ void MyDialog::OnBnClickedButtontest() {
 
 
 LRESULT MyDialog::UpdateData(const WPARAM wp, const LPARAM) {
-	std::unique_ptr<MyData> data(reinterpret_cast<MyData*>(wp));
+	const auto data = reinterpret_cast<MyData*>(wp);
+	assert(data != nullptr);
 	c_buttontest.SetWindowTextW(data->str.c_str());
 	return 0;
 }
