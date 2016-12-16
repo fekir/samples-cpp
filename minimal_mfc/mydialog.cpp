@@ -1,4 +1,4 @@
-#include "MyDialog.hpp"
+#include "mydialog.hpp"
 
 BEGIN_MESSAGE_MAP(MyDialog, CDialog)
 	ON_BN_CLICKED(IDC_BUTTONTEST, &MyDialog::OnBnClickedButtontest)

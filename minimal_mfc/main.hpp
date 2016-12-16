@@ -1,14 +1,14 @@
 #pragma once
 
 // local files
-#include "MyDialog.hpp"
+#include "mydialog.hpp"
 #include "resource.h"
 
 // mfc
 #include <afxwin.h>
 
 // windows
-#include <Windows.h>
+#include <windows.h>
 
 // std
 #include <iostream>

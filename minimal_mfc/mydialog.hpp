@@ -7,7 +7,7 @@
 #include <afxwin.h>
 
 //windows
-#include <Windows.h>
+#include <windows.h>
 
 // std
 
