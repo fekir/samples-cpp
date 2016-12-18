@@ -20,8 +20,9 @@ public:
 	~MyDialog() = default;
 
 protected:
-	CButton c_buttontest = {};
+	CButton c_buttontest;
 	std::future<int> fut;
+
 	virtual void DoDataExchange(CDataExchange* pDX) override {
 		CDialog::DoDataExchange(pDX);
 		DDX_Control(pDX, IDC_BUTTONTEST, c_buttontest);
