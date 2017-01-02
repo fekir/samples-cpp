@@ -6,84 +6,91 @@
 // libc
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 // std
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 
-namespace{ // move in separate header
-	inline std::string err_to_str(const decltype(SCARD_S_SUCCESS) err){
-		std::string msg;
-#ifdef SWITCH_ERR
-#error "SWITCH_ERR already defined"
+namespace{ // move functions in separate module
+
+	// not defined in winscard...
+	using scard_res = decltype(SCARD_S_SUCCESS);
+
+	inline std::string err_to_str(const scard_res err){
+		std::stringstream ss;
+#ifdef FEK_CASE_ERR
+#error "FEK_CASE_ERR already defined"
 #endif
-#define SWITCH_ERR(msg_, err_) case err_: msg = std::string(msg_) + " (" + std::to_string(err) + "(" #err_ "))"; break;
+#define FEK_CASE_ERR(err_) case err_: ss << ""#err_; break;
 		switch (err) {
-			SWITCH_ERR("Command successful", SCARD_S_SUCCESS);
-			SWITCH_ERR("Internal error", SCARD_F_INTERNAL_ERROR);
-			SWITCH_ERR("Command cancelled", SCARD_E_CANCELLED);
-			SWITCH_ERR("Invalid handle.", SCARD_E_INVALID_HANDLE);
-			SWITCH_ERR("Invalid parameter given.", SCARD_E_INVALID_PARAMETER);
-			SWITCH_ERR("Invalid target given.", SCARD_E_INVALID_TARGET);
-			SWITCH_ERR("Not enough memory.", SCARD_E_NO_MEMORY);
-			SWITCH_ERR("Waited too long.", SCARD_F_WAITED_TOO_LONG);
-			SWITCH_ERR("Insufficient buffer.", SCARD_E_INSUFFICIENT_BUFFER);
-			SWITCH_ERR("Unknown reader specified.", SCARD_E_UNKNOWN_READER);
-			SWITCH_ERR("Command timeout", SCARD_E_TIMEOUT);
-			SWITCH_ERR("Sharing violation", SCARD_E_SHARING_VIOLATION);
-			SWITCH_ERR("No smart card inserted", SCARD_E_NO_SMARTCARD);
-			SWITCH_ERR("Unknown card", SCARD_E_UNKNOWN_CARD);
-			SWITCH_ERR("Cannot dispose handle", SCARD_E_CANT_DISPOSE);
-			SWITCH_ERR("Card protocol mismatch", SCARD_E_PROTO_MISMATCH);
-			SWITCH_ERR("Subsystem not ready", SCARD_E_NOT_READY);
-			SWITCH_ERR("Invalid value given", SCARD_E_INVALID_VALUE);
-			SWITCH_ERR("System cancelled", SCARD_E_SYSTEM_CANCELLED);
-			SWITCH_ERR("RPC transport error", SCARD_F_COMM_ERROR);
-			SWITCH_ERR("Unknown error", SCARD_F_UNKNOWN_ERROR);
-			SWITCH_ERR("Invalid ATR", SCARD_E_INVALID_ATR);
-			SWITCH_ERR("Reader is unavailable", SCARD_E_READER_UNAVAILABLE);
-			SWITCH_ERR("", SCARD_P_SHUTDOWN);
-			SWITCH_ERR("PCI struct too small", SCARD_E_PCI_TOO_SMALL);
-			SWITCH_ERR("Reader is unsupported", SCARD_E_READER_UNSUPPORTED);
-			SWITCH_ERR("Reader already exists", SCARD_E_DUPLICATE_READER);
-			SWITCH_ERR("Card is unsupported", SCARD_E_CARD_UNSUPPORTED);
-			SWITCH_ERR("Service not available", SCARD_E_NO_SERVICE);
-			SWITCH_ERR("Service was stopped", SCARD_E_SERVICE_STOPPED);
-			//SWITCH_ERR("", SCARD_E_UNEXPECTED); // defined equal to SCARD_E_UNSUPPORTED_FEATURE on my platform
-			SWITCH_ERR("", SCARD_E_ICC_CREATEORDER);
-			SWITCH_ERR("", SCARD_E_DIR_NOT_FOUND);
-			SWITCH_ERR("", SCARD_E_NO_DIR);
-			SWITCH_ERR("", SCARD_E_NO_FILE);
-			SWITCH_ERR("", SCARD_E_NO_ACCESS);
-			SWITCH_ERR("", SCARD_E_WRITE_TOO_MANY);
-			SWITCH_ERR("", SCARD_E_BAD_SEEK);
-			SWITCH_ERR("", SCARD_E_INVALID_CHV);
-			SWITCH_ERR("", SCARD_E_UNKNOWN_RES_MNG);
-			SWITCH_ERR("", SCARD_E_NO_SUCH_CERTIFICATE);
-			SWITCH_ERR("", SCARD_E_CERTIFICATE_UNAVAILABLE);
-			SWITCH_ERR("Cannot find a smart card reader", SCARD_E_NO_READERS_AVAILABLE);
-			SWITCH_ERR("", SCARD_E_COMM_DATA_LOST);
-			SWITCH_ERR("", SCARD_E_NO_KEY_CONTAINER);
-			SWITCH_ERR("", SCARD_E_SERVER_TOO_BUSY);
-			SWITCH_ERR("Card is not supported", SCARD_W_UNSUPPORTED_CARD);
-			SWITCH_ERR("Card is unresponsive", SCARD_W_UNRESPONSIVE_CARD);
-			SWITCH_ERR("Card is unpowered", SCARD_W_UNPOWERED_CARD);
-			SWITCH_ERR("Card was reset.", SCARD_W_RESET_CARD);
-			SWITCH_ERR("Card was removed", SCARD_W_REMOVED_CARD);
-			SWITCH_ERR("", SCARD_W_SECURITY_VIOLATION);
-			SWITCH_ERR("", SCARD_W_WRONG_CHV);
-			SWITCH_ERR("", SCARD_W_CHV_BLOCKED);
-			SWITCH_ERR("", SCARD_W_EOF);
-			SWITCH_ERR("", SCARD_W_CANCELLED_BY_USER);
-			SWITCH_ERR("", SCARD_W_CARD_NOT_AUTHENTICATED);
-			SWITCH_ERR("Feature not supported", SCARD_E_UNSUPPORTED_FEATURE);
-			default:
-				msg = "Unknown error code (" + std::to_string(err) + ")"; break;
+			FEK_CASE_ERR(SCARD_S_SUCCESS);
+			FEK_CASE_ERR(SCARD_F_INTERNAL_ERROR);
+			FEK_CASE_ERR(SCARD_E_CANCELLED);
+			FEK_CASE_ERR(SCARD_E_INVALID_HANDLE);
+			FEK_CASE_ERR(SCARD_E_INVALID_PARAMETER);
+			FEK_CASE_ERR(SCARD_E_INVALID_TARGET);
+			FEK_CASE_ERR(SCARD_E_NO_MEMORY);
+			FEK_CASE_ERR(SCARD_F_WAITED_TOO_LONG);
+			FEK_CASE_ERR(SCARD_E_INSUFFICIENT_BUFFER);
+			FEK_CASE_ERR(SCARD_E_UNKNOWN_READER);
+			FEK_CASE_ERR(SCARD_E_TIMEOUT);
+			FEK_CASE_ERR(SCARD_E_SHARING_VIOLATION);
+			FEK_CASE_ERR(SCARD_E_NO_SMARTCARD);
+			FEK_CASE_ERR(SCARD_E_UNKNOWN_CARD);
+			FEK_CASE_ERR(SCARD_E_CANT_DISPOSE);
+			FEK_CASE_ERR(SCARD_E_PROTO_MISMATCH);
+			FEK_CASE_ERR(SCARD_E_NOT_READY);
+			FEK_CASE_ERR(SCARD_E_INVALID_VALUE);
+			FEK_CASE_ERR(SCARD_E_SYSTEM_CANCELLED);
+			FEK_CASE_ERR(SCARD_F_COMM_ERROR);
+			FEK_CASE_ERR(SCARD_F_UNKNOWN_ERROR);
+			FEK_CASE_ERR(SCARD_E_INVALID_ATR);
+			FEK_CASE_ERR(SCARD_E_READER_UNAVAILABLE);
+			FEK_CASE_ERR(SCARD_P_SHUTDOWN);
+			FEK_CASE_ERR(SCARD_E_PCI_TOO_SMALL);
+			FEK_CASE_ERR(SCARD_E_READER_UNSUPPORTED);
+			FEK_CASE_ERR(SCARD_E_DUPLICATE_READER);
+			FEK_CASE_ERR(SCARD_E_CARD_UNSUPPORTED);
+			FEK_CASE_ERR(SCARD_E_NO_SERVICE);
+			FEK_CASE_ERR(SCARD_E_SERVICE_STOPPED);
+			//FEK_CASE_ERR(SCARD_E_UNEXPECTED); // defined equal to SCARD_E_UNSUPPORTED_FEATURE on my platform
+			FEK_CASE_ERR(SCARD_E_ICC_CREATEORDER);
+			FEK_CASE_ERR(SCARD_E_DIR_NOT_FOUND);
+			FEK_CASE_ERR(SCARD_E_NO_DIR);
+			FEK_CASE_ERR(SCARD_E_NO_FILE);
+			FEK_CASE_ERR(SCARD_E_NO_ACCESS);
+			FEK_CASE_ERR(SCARD_E_WRITE_TOO_MANY);
+			FEK_CASE_ERR(SCARD_E_BAD_SEEK);
+			FEK_CASE_ERR(SCARD_E_INVALID_CHV);
+			FEK_CASE_ERR(SCARD_E_UNKNOWN_RES_MNG);
+			FEK_CASE_ERR(SCARD_E_NO_SUCH_CERTIFICATE);
+			FEK_CASE_ERR(SCARD_E_CERTIFICATE_UNAVAILABLE);
+			FEK_CASE_ERR(SCARD_E_NO_READERS_AVAILABLE);
+			FEK_CASE_ERR(SCARD_E_COMM_DATA_LOST);
+			FEK_CASE_ERR(SCARD_E_NO_KEY_CONTAINER);
+			FEK_CASE_ERR(SCARD_E_SERVER_TOO_BUSY);
+			FEK_CASE_ERR(SCARD_W_UNSUPPORTED_CARD);
+			FEK_CASE_ERR(SCARD_W_UNRESPONSIVE_CARD);
+			FEK_CASE_ERR(SCARD_W_UNPOWERED_CARD);
+			FEK_CASE_ERR(SCARD_W_RESET_CARD);
+			FEK_CASE_ERR(SCARD_W_REMOVED_CARD);
+			FEK_CASE_ERR(SCARD_W_SECURITY_VIOLATION);
+			FEK_CASE_ERR(SCARD_W_WRONG_CHV);
+			FEK_CASE_ERR(SCARD_W_CHV_BLOCKED);
+			FEK_CASE_ERR(SCARD_W_EOF);
+			FEK_CASE_ERR(SCARD_W_CANCELLED_BY_USER);
+			FEK_CASE_ERR(SCARD_W_CARD_NOT_AUTHENTICATED);
+			FEK_CASE_ERR(SCARD_E_UNSUPPORTED_FEATURE);
+			default: ss << "unknown error";
 		}
-#undef SWITCH_ERR
-		return msg;
+#undef FEK_CASE_ERR
+		ss <<  " (" << std::setfill ('0') << std::setw(sizeof(err)) << err << ")";
+		return ss.str();
 	}
 
 	enum class close_mode : DWORD {
@@ -221,7 +228,7 @@ namespace{ // move in separate header
 
 	// like SCardTransmit, but takes an arr_view
 	struct scard_transmit_res{
-		decltype(SCARD_S_SUCCESS) res{};
+		scard_res res{};
 		std::vector<BYTE> response;
 	};
 	scard_transmit_res scard_transmit(SCARDHANDLE hCard, const SCARD_IO_REQUEST *pioSendPci, const arr_view& sendbuffer, SCARD_IO_REQUEST *pioRecvPci){
@@ -237,7 +244,7 @@ namespace{ // move in separate header
 	}
 
 	struct scard_connect_res{
-		decltype(SCARD_S_SUCCESS) res{};
+		scard_res res{};
 		SCARDHANDLE_handle handle{};
 		decltype(SCARD_PROTOCOL_UNDEFINED) protocol{};
 	};
@@ -256,7 +263,7 @@ namespace{ // move in separate header
 
 
 	struct scard_establish_context_res{
-		decltype(SCARD_S_SUCCESS) res{};
+		scard_res res{};
 		SCARDCONTEXT_handle handle{};
 	};
 	scard_establish_context_res scard_establish_context(const DWORD dwScope){
@@ -280,21 +287,33 @@ int main()
 	SCARDCONTEXT_handle hContext = std::move(res1.handle);
 
 	// FIXME: move SCardListReaders to a single function call that handles the memory
-	DWORD dwReaders = 0;
-	const auto res2 = SCardListReaders(hContext.get(), nullptr, nullptr, &dwReaders);
+	DWORD bufsize = 0;
+	const auto res2 = SCardListReaders(hContext.get(), nullptr, nullptr, &bufsize);
 	if(res2 != SCARD_S_SUCCESS){
 		std::cerr << err_to_str(res2) << "\n";
 		return 1;
 	}
 
-	std::string mszReaders(dwReaders, '\0');
-	const auto res3 = SCardListReaders(hContext.get(), nullptr, &mszReaders[0], &dwReaders);
+	std::vector<char> buffer(bufsize);
+	const auto res3 = SCardListReaders(hContext.get(), nullptr, buffer.data(), &bufsize);
 	if(res3 != SCARD_S_SUCCESS){
 		std::cerr << err_to_str(res3) << "\n";
 		return 1;
 	}
+	buffer.resize(bufsize); // buffer is double - '\0' -terminated
 
-	auto res4 = scard_connect(hContext.get(), mszReaders.c_str(), SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1);
+	std::vector<std::string> readers;
+	{
+		auto pdata = buffer.data();
+		while(*pdata != '\0'){
+			const auto len = std::strlen(pdata);
+			std::string tmp(pdata, len);
+			readers.push_back(tmp);
+			pdata += (len + 1);
+		}
+	}
+
+	auto res4 = scard_connect(hContext.get(), readers.at(0).c_str(), SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1);
 	if(res4.res != SCARD_S_SUCCESS){
 		std::cerr << err_to_str(res4.res) << "\n";
 		return 1;
@@ -317,12 +336,14 @@ int main()
 			return 1;
 	}
 
-	BYTE cmd1[] = { 0x00, /* message to send */ };
+	/*
+	BYTE cmd1[] = { }; // message to send
 	const auto res5 = scard_transmit(hCard.get(), &pioSendPci, cmd1, nullptr);
 	if(res5.res != SCARD_S_SUCCESS){
 		std::cerr << err_to_str(res5.res) << "\n";
 		return 1;
 	}
+	*/
 	return 0;
 }
 
