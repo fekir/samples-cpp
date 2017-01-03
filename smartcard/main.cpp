@@ -24,11 +24,11 @@ namespace{ // move functions in separate module
 	inline std::string err_to_str(const scard_res err){
 		std::stringstream ss;
 		ss << std::ios::hex << std::setfill('0');
+		switch (err) {
 #ifdef FEK_CASE_ERR
 #error "FEK_CASE_ERR already defined"
 #endif
 #define FEK_CASE_ERR(err_) case err_: ss << ""#err_; break;
-		switch (err) {
 			FEK_CASE_ERR(SCARD_S_SUCCESS);
 			FEK_CASE_ERR(SCARD_F_INTERNAL_ERROR);
 			FEK_CASE_ERR(SCARD_E_CANCELLED);
@@ -59,7 +59,6 @@ namespace{ // move functions in separate module
 			FEK_CASE_ERR(SCARD_E_CARD_UNSUPPORTED);
 			FEK_CASE_ERR(SCARD_E_NO_SERVICE);
 			FEK_CASE_ERR(SCARD_E_SERVICE_STOPPED);
-			//FEK_CASE_ERR(SCARD_E_UNEXPECTED); // defined equal to SCARD_E_UNSUPPORTED_FEATURE on my platform
 			FEK_CASE_ERR(SCARD_E_ICC_CREATEORDER);
 			FEK_CASE_ERR(SCARD_E_DIR_NOT_FOUND);
 			FEK_CASE_ERR(SCARD_E_NO_DIR);
@@ -86,10 +85,19 @@ namespace{ // move functions in separate module
 			FEK_CASE_ERR(SCARD_W_EOF);
 			FEK_CASE_ERR(SCARD_W_CANCELLED_BY_USER);
 			FEK_CASE_ERR(SCARD_W_CARD_NOT_AUTHENTICATED);
-			FEK_CASE_ERR(SCARD_E_UNSUPPORTED_FEATURE);
-			default: ss << "unknown error";
-		}
 #undef FEK_CASE_ERR
+			default:{
+				// handling SCARD_E_UNEXPECTED and SCARD_E_UNSUPPORTED_FEATURE here since on gnu/linux
+				// they have the same value and it would not be possible to handle in the switch case
+				if(err == SCARD_E_UNEXPECTED){
+					ss << "SCARD_E_UNEXPECTED";
+				} else if(err == SCARD_E_UNSUPPORTED_FEATURE){
+					ss << "SCARD_E_UNEXPECTED";
+				} else{
+					ss << "unknown SCARD error value";
+				}
+			}
+		}
 		ss << " (" << std::setw(sizeof(err)) << err << ")";
 		auto res = ss.str();
 		return res;
@@ -257,7 +265,7 @@ namespace{ // move functions in separate module
 		DWORD protocol{};
 		toreturn.res = SCardConnect(hContext, szReader, dwShareMode, dwPreferredProtocols, &h, &protocol);
 		if(toreturn.res == SCARD_S_SUCCESS){
-			toreturn.protocol = protocol;
+			toreturn.protocol = static_cast<DWORD>(protocol);
 			toreturn.handle.reset(h);
 		}
 		return toreturn;
@@ -310,8 +318,10 @@ int main()
 		auto pdata = buffer.data();
 		while(*pdata != '\0'){
 			const auto len = std::strlen(pdata);
-			std::string tmp(pdata, len);
-			readers.push_back(tmp);
+			if(len > 0){
+				std::string tmp(pdata, len);
+				readers.push_back(tmp);
+			}
 			pdata += (len + 1);
 		}
 	}
@@ -334,6 +344,9 @@ int main()
 		case SCARD_PROTOCOL_RAW:
 			pioSendPci = *SCARD_PCI_RAW;
 			break;
+		case SCARD_PROTOCOL_UNDEFINED:
+			std::cerr << "Protocol not defined\n";
+			return 1;
 		default:
 			std::cerr << "unknown protocol\n";
 			return 1;
