@@ -23,6 +23,7 @@ namespace{ // move functions in separate module
 
 	inline std::string err_to_str(const scard_res err){
 		std::stringstream ss;
+		ss << std::ios::hex << std::setfill('0');
 #ifdef FEK_CASE_ERR
 #error "FEK_CASE_ERR already defined"
 #endif
@@ -89,8 +90,9 @@ namespace{ // move functions in separate module
 			default: ss << "unknown error";
 		}
 #undef FEK_CASE_ERR
-		ss <<  " (" << std::setfill ('0') << std::setw(sizeof(err)) << err << ")";
-		return ss.str();
+		ss << " (" << std::setw(sizeof(err)) << err << ")";
+		auto res = ss.str();
+		return res;
 	}
 
 	enum class close_mode : DWORD {
@@ -243,10 +245,11 @@ namespace{ // move functions in separate module
 		return toreturn;
 	}
 
+	using scard_protocol = decltype(SCARD_PROTOCOL_UNDEFINED);
 	struct scard_connect_res{
 		scard_res res{};
 		SCARDHANDLE_handle handle{};
-		decltype(SCARD_PROTOCOL_UNDEFINED) protocol{};
+		scard_protocol protocol{};
 	};
 	scard_connect_res scard_connect(SCARDCONTEXT hContext, LPCSTR szReader, DWORD dwShareMode, DWORD dwPreferredProtocols){
 		scard_connect_res toreturn;
