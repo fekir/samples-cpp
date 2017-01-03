@@ -2,10 +2,19 @@
 
 project(smartcard)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_STANDARD 11)
+
+set(SRC_FILES
+)
+
+add_executable(${PROJECT_NAME}
+	main.cpp
+	${SRC_FILES}
+)
 
 if( CMAKE_SYSTEM_NAME STREQUAL "Windows" )
-else() # FIXME: assuming Linux and Caja, but should check if using caja/nemo/....
+	target_link_libraries(${PROJECT_NAME} winscard)
+else()
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(PCSC REQUIRED libpcsclite )
 
@@ -16,19 +25,10 @@ else() # FIXME: assuming Linux and Caja, but should check if using caja/nemo/...
 	message("cflags_o:  ${PCSC_CFLAGS_OTHER}")
 
 	include_directories(SYSTEM ${PCSC_INCLUDE_DIRS})
-
-endif()
-
-add_executable(${PROJECT_NAME} main.cpp)
-
-if( CMAKE_SYSTEM_NAME STREQUAL "Windows" )
-	target_link_libraries(${PROJECT_NAME} winscard)
-else()
 	set_target_properties(${PROJECT_NAME}
 		PROPERTIES
 		LINK_FLAGS "${PCSC_LDFLAGS}"
 	)
 endif()
-set(SOURCE_FILES
-	main.cpp
-)
+
+
