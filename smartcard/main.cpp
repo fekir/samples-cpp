@@ -252,11 +252,10 @@ namespace{ // move functions in separate module
 		return toreturn;
 	}
 
-	using scard_protocol = decltype(SCARD_PROTOCOL_UNDEFINED);
 	struct scard_connect_res{
 		scard_res res{};
 		unique_SCARDHANDLE handle{};
-		scard_protocol protocol{};
+		DWORD protocol{};
 	};
 	scard_connect_res scard_connect(SCARDCONTEXT hContext, LPCSTR szReader, DWORD dwShareMode, DWORD dwPreferredProtocols){
 		scard_connect_res toreturn;
@@ -264,7 +263,7 @@ namespace{ // move functions in separate module
 		DWORD protocol{};
 		toreturn.res = SCardConnect(hContext, szReader, dwShareMode, dwPreferredProtocols, &h, &protocol);
 		if(toreturn.res == SCARD_S_SUCCESS){
-			toreturn.protocol = static_cast<DWORD>(protocol);
+			toreturn.protocol = protocol;
 			toreturn.handle.reset(h);
 		}
 		return toreturn;
