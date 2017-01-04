@@ -112,19 +112,19 @@ namespace{ // move functions in separate module
 
 	// data structures similar for unique_ptr, but for smartcard handles
 	const SCARDCONTEXT invalid_handle = {}; // assuming the 0-init handle is an "invalid" handle
-	struct SCARDHANDLE_handle {
+	struct unique_SCARDHANDLE {
 		SCARDHANDLE handle = invalid_handle;
 		close_mode m = close_mode::leave_card;
-		SCARDHANDLE_handle() = default;
-		explicit SCARDHANDLE_handle(const SCARDHANDLE h, close_mode m_ = close_mode::leave_card) : handle(h), m(m_){}
+		unique_SCARDHANDLE() = default;
+		explicit unique_SCARDHANDLE(const SCARDHANDLE h, close_mode m_ = close_mode::leave_card) : handle(h), m(m_){}
 		// copy
-		SCARDHANDLE_handle(const SCARDHANDLE_handle&) = delete;
-		SCARDHANDLE_handle& operator=( const SCARDHANDLE_handle& ) = delete;
+		unique_SCARDHANDLE(const unique_SCARDHANDLE&) = delete;
+		unique_SCARDHANDLE& operator=( const unique_SCARDHANDLE& ) = delete;
 		// move
-		SCARDHANDLE_handle( SCARDHANDLE_handle&& o ) : handle(o.handle), m(o.m){
+		unique_SCARDHANDLE( unique_SCARDHANDLE&& o ) : handle(o.handle), m(o.m){
 			o.handle = invalid_handle;
 		}
-		SCARDHANDLE_handle& operator=( SCARDHANDLE_handle&& o ){
+		unique_SCARDHANDLE& operator=( unique_SCARDHANDLE&& o ){
 			reset(o.release());
 			handle = o.handle;
 			m = o.m;
@@ -132,7 +132,7 @@ namespace{ // move functions in separate module
 			return *this;
 		}
 
-		~SCARDHANDLE_handle(){
+		~unique_SCARDHANDLE(){
 			using u_type = std::underlying_type<close_mode>::type;
 			const auto res = ::SCardDisconnect(handle, static_cast<u_type>(m));
 			(void) res;
@@ -153,7 +153,7 @@ namespace{ // move functions in separate module
 				(void) res;
 			}
 		}
-		void swap(SCARDHANDLE_handle& o){
+		void swap(unique_SCARDHANDLE& o){
 			std::swap(handle, o.handle);
 			std::swap(m, o.m);
 		}
@@ -168,25 +168,25 @@ namespace{ // move functions in separate module
 	};
 
 	const SCARDCONTEXT invalid_context = {}; // assuming the 0-init context is an "invalid" context
-	struct SCARDCONTEXT_handle {
+	struct unique_SCARDCONTEXT {
 		SCARDCONTEXT context = invalid_context;
-		SCARDCONTEXT_handle() = default;
-		explicit SCARDCONTEXT_handle(const SCARDCONTEXT c) : context(c){}
+		unique_SCARDCONTEXT() = default;
+		explicit unique_SCARDCONTEXT(const SCARDCONTEXT c) : context(c){}
 		// copy
-		SCARDCONTEXT_handle(const SCARDCONTEXT_handle&) = delete;
-		SCARDCONTEXT_handle& operator=( const SCARDCONTEXT_handle& ) = delete;
+		unique_SCARDCONTEXT(const unique_SCARDCONTEXT&) = delete;
+		unique_SCARDCONTEXT& operator=( const unique_SCARDCONTEXT& ) = delete;
 		// move
-		SCARDCONTEXT_handle( SCARDCONTEXT_handle&& o ) : context(o.context){
+		unique_SCARDCONTEXT( unique_SCARDCONTEXT&& o ) : context(o.context){
 			o.context = invalid_context;
 		}
-		SCARDCONTEXT_handle& operator=( SCARDCONTEXT_handle&& o ){
+		unique_SCARDCONTEXT& operator=( unique_SCARDCONTEXT&& o ){
 			reset(o.release());
 			context = o.context;
 			o.context = invalid_context;
 			return *this;
 		}
 
-		~SCARDCONTEXT_handle(){
+		~unique_SCARDCONTEXT(){
 			const auto res = ::SCardReleaseContext(context);
 			(void) res;
 		}
@@ -205,7 +205,7 @@ namespace{ // move functions in separate module
 				(void) res;
 			}
 		}
-		void swap(SCARDCONTEXT_handle& o){
+		void swap(unique_SCARDCONTEXT& o){
 			std::swap(context, o.context);
 		}
 
@@ -255,7 +255,7 @@ namespace{ // move functions in separate module
 	using scard_protocol = decltype(SCARD_PROTOCOL_UNDEFINED);
 	struct scard_connect_res{
 		scard_res res{};
-		SCARDHANDLE_handle handle{};
+		unique_SCARDHANDLE handle{};
 		scard_protocol protocol{};
 	};
 	scard_connect_res scard_connect(SCARDCONTEXT hContext, LPCSTR szReader, DWORD dwShareMode, DWORD dwPreferredProtocols){
@@ -274,7 +274,7 @@ namespace{ // move functions in separate module
 
 	struct scard_establish_context_res{
 		scard_res res{};
-		SCARDCONTEXT_handle handle{};
+		unique_SCARDCONTEXT handle{};
 	};
 	scard_establish_context_res scard_establish_context(const DWORD dwScope){
 		scard_establish_context_res toreturn;
@@ -294,7 +294,7 @@ int main()
 		std::cerr << err_to_str(res1.res) << "\n";
 		return 1;
 	}
-	SCARDCONTEXT_handle hContext = std::move(res1.handle);
+	unique_SCARDCONTEXT hContext = std::move(res1.handle);
 
 	// FIXME: move SCardListReaders to a single function call that handles the memory
 	DWORD bufsize = 0;
@@ -330,7 +330,7 @@ int main()
 		std::cerr << err_to_str(res4.res) << "\n";
 		return 1;
 	}
-	SCARDHANDLE_handle hCard = std::move(res4.handle);
+	unique_SCARDHANDLE hCard = std::move(res4.handle);
 	SCARD_IO_REQUEST pioSendPci{};
 	switch(res4.protocol)
 	{
