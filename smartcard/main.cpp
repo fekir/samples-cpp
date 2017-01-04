@@ -23,7 +23,6 @@ namespace{ // move functions in separate module
 
 	inline std::string err_to_str(const scard_res err){
 		std::stringstream ss;
-		ss << std::ios::hex << std::setfill('0');
 		switch (err) {
 #ifdef FEK_CASE_ERR
 #error "FEK_CASE_ERR already defined"
@@ -98,7 +97,7 @@ namespace{ // move functions in separate module
 				}
 			}
 		}
-		ss << " (" << std::setw(sizeof(err)) << err << ")";
+		ss << " (0x" << std::hex << std::setfill('0')<< std::setw(sizeof(err)) << err << ")";
 		auto res = ss.str();
 		return res;
 	}
