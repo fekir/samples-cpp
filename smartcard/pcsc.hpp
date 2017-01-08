@@ -8,7 +8,6 @@
 #include <winscard.h>
 
 // libc
-// libc
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -19,7 +18,9 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-
+#ifdef _WIN32
+#include <codecvt>
+#endif
 
 // not defined in winscard...
 using scard_res = decltype(SCARD_S_SUCCESS);
@@ -114,18 +115,23 @@ inline std::string proto_to_str(const DWORD prot){
 #endif
 #define FEK_CASE_ADD(val__) case val__: ss << ""#val__; break;
 		FEK_CASE_ADD(SCARD_PROTOCOL_UNDEFINED);
-		//FEK_CASE_ADD(SCARD_PROTOCOL_UNSET); // see defaul case
+		//FEK_CASE_ADD(SCARD_PROTOCOL_UNSET); // see default case
+		FEK_CASE_ADD(SCARD_PROTOCOL_T0);
 		FEK_CASE_ADD(SCARD_PROTOCOL_T1);
-		FEK_CASE_ADD(SCARD_E_CANCELLED);
 		FEK_CASE_ADD(SCARD_PROTOCOL_RAW);
+#ifdef SCARD_PROTOCOL_T15 // not defined on windows
 		FEK_CASE_ADD(SCARD_PROTOCOL_T15);
-#define SCARD_PROTOCOL_UNSET SCARD_PROTOCOL_UNDEFINED
+#endif
 #undef FEK_CASE_ERR
 		default:{
 			// apparently SCARD_PROTOCOL_UNSET is equal to SCARD_PROTOCOL_UNDEFINED for backward compatibility
+#ifdef SCARD_PROTOCOL_UNSET
 			if(prot == SCARD_PROTOCOL_UNSET){
 				ss << "SCARD_PROTOCOL_UNSET";
-			} else{
+			}
+			else
+#endif
+			{
 				ss << "unknown SCARD protocol";
 			}
 		}
@@ -306,7 +312,28 @@ struct scard_connect_res{
 	unique_SCARDHANDLE handle{};
 	DWORD protocol{};
 };
+#ifdef WIN32
+inline std::pair<scard_res, scard_connect_res> scard_connect(SCARDCONTEXT hContext, LPCWSTR szReader, DWORD dwShareMode, DWORD dwPreferredProtocols) {
+	scard_connect_res toreturn;
+	SCARDHANDLE h;
+	DWORD protocol{};
+	auto res = SCardConnectW(hContext, szReader, dwShareMode, dwPreferredProtocols, &h, &protocol);
+	if (res == SCARD_S_SUCCESS) {
+		toreturn.protocol = protocol;
+		toreturn.handle.reset(h);
+	}
+	return{ res, std::move(toreturn) };
+}
+#endif
+
 inline std::pair<scard_res, scard_connect_res> scard_connect(SCARDCONTEXT hContext, LPCSTR szReader, DWORD dwShareMode, DWORD dwPreferredProtocols){
+#ifdef _WIN32
+
+	using convert_type = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_type, wchar_t> converter;
+	std::wstring reader = converter.from_bytes(szReader);
+	return scard_connect(hContext, reader.c_str(), dwShareMode, dwPreferredProtocols);
+#else
 	scard_connect_res toreturn;
 	SCARDHANDLE h;
 	DWORD protocol{};
@@ -316,6 +343,7 @@ inline std::pair<scard_res, scard_connect_res> scard_connect(SCARDCONTEXT hConte
 		toreturn.handle.reset(h);
 	}
 	return {res, std::move(toreturn)};
+#endif
 }
 
 inline std::pair<scard_res, unique_SCARDCONTEXT> scard_establish_context(const DWORD dwScope){
@@ -329,6 +357,24 @@ inline std::pair<scard_res, unique_SCARDCONTEXT> scard_establish_context(const D
 }
 
 // "explodes" a double '\0'-terminated list of z_str
+#ifdef _WIN32
+inline std::vector<std::string> explode(const wchar_t* zz_str) {
+	using convert_type = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_type, wchar_t> converter;
+	std::vector<std::string> to_return;
+	auto pdata = zz_str;
+	while (*pdata != '\0') {
+		const auto len = std::wcslen(pdata);
+		if (len > 0) {
+			std::wstring tmp(pdata, len);
+			to_return.push_back(converter.to_bytes(tmp));
+		}
+		pdata += (len + 1);
+	}
+	return to_return;
+}
+#endif
+
 inline std::vector<std::string> explode(const char* zz_str){
 	std::vector<std::string> to_return;
 	auto pdata = zz_str;
@@ -350,13 +396,22 @@ struct scard_list_readers_res{
 
 inline std::pair<scard_res, std::vector<std::string>> scard_list_reader(SCARDCONTEXT hContext){
 	DWORD bufsize = 0;
+#ifdef _WIN32
+	auto res = SCardListReadersW(hContext, nullptr, nullptr, &bufsize);
+#else
 	auto res = SCardListReaders(hContext, nullptr, nullptr, &bufsize);
+#endif
 	if(res != SCARD_S_SUCCESS){
 		return {res, {}};
 	}
 
+#ifdef _WIN32
+	std::vector<wchar_t> buffer(bufsize);
+	res = SCardListReadersW(hContext, nullptr, buffer.data(), &bufsize);
+#else
 	std::vector<char> buffer(bufsize);
 	res = SCardListReaders(hContext, nullptr, buffer.data(), &bufsize);
+#endif
 	if(res != SCARD_S_SUCCESS){
 		return {res, {}};
 	}
@@ -382,16 +437,29 @@ inline std::pair<scard_res, scard_status_res> scard_status(SCARDHANDLE hCard){
 		return {res, {}};
 	}
 	scard_status_res toreturn;
-	toreturn.reader.resize(names_len);
 	toreturn.atr.resize(atr_len);
 	DWORD state{};
 	DWORD protocoll{};
-	res = SCardStatus(hCard, &(toreturn.reader[0]), &names_len, &state, &protocoll, toreturn.atr.data(), &atr_len);
-	if(res != SCARD_S_SUCCESS){
-		return {res, {}};
-	}
-	toreturn.atr.resize(atr_len);
+
+#ifdef _WIN32
+	std::wstring reader(names_len, '\0');
+	res = SCardStatusW(hCard, &reader[0], &names_len, &state, &protocoll, toreturn.atr.data(), &atr_len);
+#else
 	toreturn.reader.resize(names_len);
+	std::string& reader = toreturn.reader;
+	res = SCardStatus(hCard, &reader[0], &names_len, &state, &protocoll, toreturn.atr.data(), &atr_len);
+#endif
+	if (res != SCARD_S_SUCCESS) {
+		return{ res,{} };
+	}
+	reader.resize(names_len);
+	toreturn.atr.resize(atr_len);
+
+#ifdef _WIN32
+	using convert_type = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_type, wchar_t> converter;
+	toreturn.reader = converter.to_bytes(reader);
+#endif
 
 	return {res, toreturn};
 }

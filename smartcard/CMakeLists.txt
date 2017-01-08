@@ -13,6 +13,7 @@ add_executable(${PROJECT_NAME}
 )
 
 if( CMAKE_SYSTEM_NAME STREQUAL "Windows" )
+	add_definitions(-D_UNICODE -DUNICODE)
 	target_link_libraries(${PROJECT_NAME} winscard)
 else()
 	find_package(PkgConfig REQUIRED)
@@ -30,5 +31,3 @@ else()
 		LINK_FLAGS "${PCSC_LDFLAGS}"
 	)
 endif()
-
-
