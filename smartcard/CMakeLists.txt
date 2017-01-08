@@ -8,8 +8,8 @@ set(SRC_FILES
 )
 
 add_executable(${PROJECT_NAME}
+	pcsc.hpp
 	main.cpp
-	${SRC_FILES}
 )
 
 if( CMAKE_SYSTEM_NAME STREQUAL "Windows" )
