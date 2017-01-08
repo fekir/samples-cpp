@@ -6,10 +6,8 @@
 #include <cassert>
 #include <stdexcept>
 
-using namespace fek;
 
-int main() try
-{
+int main() try {
 	auto res1 = scard_establish_context(SCARD_SCOPE_SYSTEM);
 	if(res1.first != SCARD_S_SUCCESS){
 		std::cerr << err_to_str(res1.first) << "\n";
