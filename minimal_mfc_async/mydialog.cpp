@@ -1,8 +1,8 @@
-#include "MyDialog.hpp"
+#include "mydialog.hpp"
 
 // windows
-#include <Windows.h>
-#include <WinUser.h>
+#include <windows.h>
+#include <winuser.h>
 
 // cstd
 #include <cassert>
@@ -60,3 +60,4 @@ LRESULT MyDialog::UpdateData(const WPARAM wp, const LPARAM) {
 	c_buttontest.SetWindowTextW(data->str.c_str());
 	return 0;
 }
+

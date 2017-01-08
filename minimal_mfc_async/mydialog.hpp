@@ -5,7 +5,7 @@
 
 // mfc
 #include <afxwin.h>
-#include <Windows.h>
+#include <windows.h>
 
 // std
 #include <thread>
@@ -34,3 +34,4 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 };
+
