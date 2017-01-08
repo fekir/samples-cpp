@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.3)
 
 project(MinimalQt CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON) # otherwise the files generated from MOC won't be found
 
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
