@@ -6,9 +6,9 @@ add_definitions(-DWIN32_LEAN_AND_MEAN)                # removes rarely used head
 add_definitions(-DNOMINMAX)                           # removes min and max macro, use std::min and std::max
 add_definitions(-DSTRICT)                             # enable strict mode (adds more typesafety, for example replacing some typedef with structs)
 
-add_definitions(-DNTDDI_VERSION=NTDDI_VISTA)          # set minimal version  of windows to windows vista
-add_definitions(-D_WIN32_WINNT=_WIN32_WINNT_VISTA)    # set minimal version  of windows to windows vista
-add_definitions(-DWINVER=_WIN32_WINNT_VISTA)          # set minimal version  of windows to windows vista
+add_definitions(-DNTDDI_VERSION=NTDDI_VISTA)          # set minimal version of windows to windows vista
+add_definitions(-D_WIN32_WINNT=_WIN32_WINNT_VISTA)    # set minimal version of windows to windows vista
+add_definitions(-DWINVER=_WIN32_WINNT_VISTA)          # set minimal version of windows to windows vista
 
 add_definitions(-D_UNICODE -DUNICODE)                 # unicode apis
 
