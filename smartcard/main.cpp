@@ -36,17 +36,17 @@ int main() try {
 	std::cout << "Succesfully connected to the first reader\n";
 
 	unique_SCARDHANDLE hCard = std::move(res4.second.handle);
-	SCARD_IO_REQUEST pioSendPci{};
+	const SCARD_IO_REQUEST* pioSendPci{};
 	switch(res4.second.protocol)
 	{
 		case SCARD_PROTOCOL_T0:
-			pioSendPci = *SCARD_PCI_T0;
+			pioSendPci = SCARD_PCI_T0;
 			break;
 		case SCARD_PROTOCOL_T1:
-			pioSendPci = *SCARD_PCI_T1;
+			pioSendPci = SCARD_PCI_T1;
 			break;
 		case SCARD_PROTOCOL_RAW:
-			pioSendPci = *SCARD_PCI_RAW;
+			pioSendPci = SCARD_PCI_RAW;
 			break;
 		case SCARD_PROTOCOL_UNDEFINED:
 			std::cerr << "Protocol not defined\n";
@@ -66,7 +66,7 @@ int main() try {
 	/*
 	BYTE cmd1[] = { }; // message to send
 	DWORD respsize = ...
-	const auto res5 = scard_transmit(hCard.get(), &pioSendPci, cmd1, resp_size);
+	const auto res5 = scard_transmit(hCard.get(), pioSendPci, cmd1, resp_size);
 	if(res5.first != SCARD_S_SUCCESS){
 		std::cerr << err_to_str(res5.res) << "\n";
 		return 1;
