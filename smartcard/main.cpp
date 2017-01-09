@@ -65,8 +65,9 @@ int main() try {
 
 	/*
 	BYTE cmd1[] = { }; // message to send
-	const auto res5 = scard_transmit(hCard.get(), &pioSendPci, cmd1, nullptr);
-	if(res5.res != SCARD_S_SUCCESS){
+	DWORD respsize = ...
+	const auto res5 = scard_transmit(hCard.get(), &pioSendPci, cmd1, resp_size);
+	if(res5.first != SCARD_S_SUCCESS){
 		std::cerr << err_to_str(res5.res) << "\n";
 		return 1;
 	}

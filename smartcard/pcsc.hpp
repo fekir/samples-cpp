@@ -297,12 +297,11 @@ struct arr_view{
 };
 
 // like SCardTransmit, but takes an arr_view
-inline std::pair<scard_res, std::vector<BYTE>> scard_transmit(SCARDHANDLE hCard, const SCARD_IO_REQUEST *pioSendPci, const arr_view& sendbuffer, SCARD_IO_REQUEST *pioRecvPci){
-	std::vector<BYTE> response(256);
-	DWORD size = response.size();
-	auto res = SCardTransmit(hCard, pioSendPci, sendbuffer.data, sendbuffer.size, pioRecvPci, response.data(), &size);
+inline std::pair<scard_res, std::vector<BYTE>> scard_transmit(SCARDHANDLE hCard, const SCARD_IO_REQUEST *pioSendPci, const arr_view& sendbuffer, DWORD response_size, SCARD_IO_REQUEST *pioRecvPci = nullptr){
+	std::vector<BYTE> response(response_size);
+	auto res = SCardTransmit(hCard, pioSendPci, sendbuffer.data, sendbuffer.size, pioRecvPci, response.data(), &response_size);
 	if(res == SCARD_S_SUCCESS){
-		response.resize(size);
+		response.resize(response_size);
 		return {res, response};
 	}
 	return {res, {}};
