@@ -25,7 +25,7 @@
 // not defined in winscard...
 using scard_res = decltype(SCARD_S_SUCCESS);
 
-inline std::string err_to_str(const scard_res err){
+inline std::string scard_err_to_str(const scard_res err){
 	std::stringstream ss;
 	switch (err) {
 #ifdef FEK_CASE_ADD

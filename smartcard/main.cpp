@@ -7,17 +7,17 @@
 #include <stdexcept>
 
 
-int main() try {
+int main(){
 	auto res1 = scard_establish_context(SCARD_SCOPE_SYSTEM);
 	if(res1.first != SCARD_S_SUCCESS){
-		std::cerr << err_to_str(res1.first) << "\n";
+		std::cerr << scard_err_to_str(res1.first) << "\n";
 		return 1;
 	}
 	unique_SCARDCONTEXT hContext = std::move(res1.second);
 
 	auto readers = scard_list_reader(hContext.get());
 	if(readers.first != SCARD_S_SUCCESS){
-		std::cerr << "unable to lis readers " << err_to_str(readers.first) << "\n";
+		std::cerr << "unable to lis readers " << scard_err_to_str(readers.first) << "\n";
 		return 1;
 	}
 	if(readers.second.empty()){
@@ -30,7 +30,7 @@ int main() try {
 	}
 	auto res4 = scard_connect(hContext.get(), readers.second.at(0).c_str(), SCARD_SHARE_SHARED, SCARD_PROTOCOL_T0 | SCARD_PROTOCOL_T1);
 	if(res4.first != SCARD_S_SUCCESS){
-		std::cerr << "unable to connect to the first reader " << err_to_str(res4.first) << "\n";
+		std::cerr << "unable to connect to the first reader " << scard_err_to_str(res4.first) << "\n";
 		return 1;
 	}
 	std::cout << "Succesfully connected to the first reader\n";
@@ -59,7 +59,7 @@ int main() try {
 
 	auto res_status = scard_status(hCard.get());
 	if(res_status.first != SCARD_S_SUCCESS){
-		std::cerr << "unable to get status of reader" << err_to_str(res_status.first) << "\n";
+		std::cerr << "unable to get status of reader" << scard_err_to_str(res_status.first) << "\n";
 		return 1;
 	}
 
@@ -73,9 +73,5 @@ int main() try {
 	}
 	*/
 	return 0;
-} catch(const std::exception& ex){
-	std::cerr << "unexpected error:" << ex.what() << "\n";
-} catch(...){
-std::cerr << "unknown error\n";
 }
 
