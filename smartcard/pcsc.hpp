@@ -423,7 +423,7 @@ inline std::pair<scard_res, std::vector<std::string>> scard_list_reader(SCARDCON
 
 struct scard_status_res{
 	DWORD state{};
-	DWORD protocoll{};
+	DWORD protocol{};
 	std::string reader;
 	std::vector<unsigned char> atr;
 };
@@ -438,21 +438,23 @@ inline std::pair<scard_res, scard_status_res> scard_status(SCARDHANDLE hCard){
 	scard_status_res toreturn;
 	toreturn.atr.resize(atr_len);
 	DWORD state{};
-	DWORD protocoll{};
+	DWORD protocol{};
 
 #ifdef _WIN32
 	std::wstring reader(names_len, '\0');
-	res = SCardStatusW(hCard, &reader[0], &names_len, &state, &protocoll, toreturn.atr.data(), &atr_len);
+	res = SCardStatusW(hCard, &reader[0], &names_len, &state, &protocol, toreturn.atr.data(), &atr_len);
 #else
 	toreturn.reader.resize(names_len);
 	std::string& reader = toreturn.reader;
-	res = SCardStatus(hCard, &reader[0], &names_len, &state, &protocoll, toreturn.atr.data(), &atr_len);
+	res = SCardStatus(hCard, &reader[0], &names_len, &state, &protocol, toreturn.atr.data(), &atr_len);
 #endif
 	if (res != SCARD_S_SUCCESS) {
 		return{ res,{} };
 	}
 	reader.resize(names_len);
 	toreturn.atr.resize(atr_len);
+	toreturn.protocol = protocol;
+	toreturn.state = state;
 
 #ifdef _WIN32
 	using convert_type = std::codecvt_utf8<wchar_t>;
