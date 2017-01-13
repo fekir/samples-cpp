@@ -12,6 +12,8 @@ endif()
 if(MSVC)
 	include(msvc_flags)
 endif()
+if(CMAKE_COMPILER_IS_GNUCXX)
+	include(gcc_flags)
+endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
-
