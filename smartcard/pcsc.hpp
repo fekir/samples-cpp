@@ -165,16 +165,16 @@ struct unique_SCARDHANDLE {
 	}
 	unique_SCARDHANDLE& operator=( unique_SCARDHANDLE&& o ){
 		reset(o.release());
-		handle = o.handle;
 		m = o.m;
-		o.handle = invalid_handle;
 		return *this;
 	}
 
 	~unique_SCARDHANDLE(){
-		using u_type = std::underlying_type<close_mode>::type;
-		const auto res = ::SCardDisconnect(handle, static_cast<u_type>(m));
-		(void) res;
+		if(handle != invalid_handle){
+			using u_type = std::underlying_type<close_mode>::type;
+			const auto res = ::SCardDisconnect(handle, static_cast<u_type>(m));
+			(void) res;
+		}
 	}
 	// modifiers
 	SCARDHANDLE release(){
@@ -220,14 +220,14 @@ struct unique_SCARDCONTEXT {
 	}
 	unique_SCARDCONTEXT& operator=( unique_SCARDCONTEXT&& o ){
 		reset(o.release());
-		context = o.context;
-		o.context = invalid_context;
 		return *this;
 	}
 
 	~unique_SCARDCONTEXT(){
-		const auto res = ::SCardReleaseContext(context);
-		(void) res;
+		if(context != invalid_context){
+			const auto res = ::SCardReleaseContext(context);
+			(void) res;
+		}
 	}
 	// modifiers
 	SCARDCONTEXT release(){
