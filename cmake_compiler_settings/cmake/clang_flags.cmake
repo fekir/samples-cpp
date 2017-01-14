@@ -1,8 +1,8 @@
 ##################################################################
-# Settings for the GCC Compiler
+# Settings for the Clang Compiler
 
 ##################################################################
-# language, set explicit to avoid using some gnu extension
+# language, set explicit to avoid using some extension
 add_compile_options(-std=c++14)
 
 ##################################################################
