@@ -20,8 +20,8 @@
 struct config{
 	// put here all configurations of the service
 	unsigned int delay = 0;
-	std::string conf_file_name;
 };
+std::string conf_file_name;
 
 const char daemon_name[] = "my_daemon";
 
@@ -61,7 +61,7 @@ int main(const int argc, char* const argv[]) try {
 	while ((value = getopt_long(argc, argv, "c:p:d:h", options, &option_index)) != -1) {
 		switch (value) {
 			case 'c':
-				conf.conf_file_name = optarg;
+				conf_file_name = optarg;
 				break;
 			case 'l':
 				break;
@@ -97,7 +97,7 @@ int main(const int argc, char* const argv[]) try {
 	syslog(LOG_INFO, "%s has been started", daemon_name);
 
 	// Read configuration from config file (before registering signal for reloading configuration, otherwise update global flag)
-	auto res = read_conf_file(conf.conf_file_name);
+	auto res = read_conf_file(conf_file_name);
 	if(res.first){
 		conf = res.second;
 	}else{
@@ -119,7 +119,7 @@ int main(const int argc, char* const argv[]) try {
 		// check if we need to reload configuration
 		if(g_reload_conf_flag == reload_conf_stat::reload){
 			const update_flag up(g_reload_conf_flag, reload_conf_stat::reloading, reload_conf_stat::done);
-			const auto conf_tmp = read_conf_file(conf.conf_file_name);
+			const auto conf_tmp = read_conf_file(conf_file_name);
 			if(conf_tmp.first){
 				syslog(LOG_INFO, "configuration reloaded successfully");
 				conf = conf_tmp.second;
