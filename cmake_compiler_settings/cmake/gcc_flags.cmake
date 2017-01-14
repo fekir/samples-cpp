@@ -28,7 +28,7 @@ add_compile_options(-Wdisabled-optimization)
 
 
 
-option(EFFCXX "Enable Effective C++ Warnings (very noisy, even of correct code)"  OFF)
+option(EFFCXX "Enable Effective C++ Warnings (very noisy on correct c++11 code)"  OFF)
 if(EFFCXX)
 	message(" ===== Adding Effective C++ Warnings")
 	add_compile_options(-Weffc++)
@@ -67,13 +67,13 @@ set_property(CACHE SanValue PROPERTY STRINGS ${SanitizerValues})
 # not using add_compile_options since since needs flag also for linking
 if("${SanValue}" STREQUAL "SANADD")
 	message(" ===== Enable sanitizer for addresses ===== ")
-	set(SAN_FLAGS "${SAN_FLAGS} -fsanitize=address")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 elseif("${SanValue}" STREQUAL "SANUNDEF")
 	message(" ===== Enable sanitizer for UB ===== ")
-	set(SAN_FLAGS "${SAN_FLAGS} -fsanitize=undefined")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
 elseif("${SanValue}" STREQUAL "SANTHREAD")
 	message(" ===== Enable sanitizer for threads ===== ")
-	set(SAN_FLAGS "${SAN_FLAGS} -fsanitize=thread")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
 endif()
 
 
