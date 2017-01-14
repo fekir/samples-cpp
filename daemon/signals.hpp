@@ -12,6 +12,7 @@
 
 // std
 
+
 /// signal handlers
 // https://www.securecoding.cert.org/confluence/pages/viewpage.action?pageId=3903
 // https://stackoverflow.com/questions/16891019/how-to-avoid-using-printf-in-a-signal-handler
@@ -49,19 +50,20 @@ enum sig_term_stat : sig_atomic_t{
 };
 static volatile sig_atomic_t g_sig_term_flag = sig_term_stat::not_received;
 inline void handle_SIGTERM(const int sig){
+	syslog(LOG_WARNING, "handlesigterm");
 	assert(sig == SIGTERM && "signal handler not registered corretcly");
 	if (sig != SIGTERM) {
 		return;
 	}
 #if !defined(NDEBUG)
-	const char msg[] = "received SIGINT signal";
+	const char msg[] = "received SIGTERM signal";
 	write(STDOUT_FILENO, msg, sizeof(msg)-1); // strlen is not "signal safe" on posix
 #endif
 	g_sig_term_flag = sig_term_stat::received;
 	// reset original signal handler, if for some reason our main loop takes to much time to exit,
-	// a second SIGINT will terminate the program
-	auto this_sigint = signal(SIGTERM, orig_sigterm);
-	(void)this_sigint;
+	// a second SIGTERM will terminate the program
+	//auto this_sigterm = signal(SIGTERM, orig_sigterm);
+	//(void)this_sigterm;
 }
 
 #endif

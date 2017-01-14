@@ -105,8 +105,8 @@ int main(const int argc, char* const argv[]) try {
 		return EXIT_FAILURE;
 	}
 
-	// register signals, and save original sigint so that we can reset it later
-	orig_sigterm = signal(SIGINT, handle_SIGTERM);
+	// register signals, and save original sigterm so that we can reset it later
+	orig_sigterm = signal(SIGTERM, handle_SIGTERM);
 	auto orig_sighup_handler = signal(SIGHUP, handle_SIGHUP);
 	(void)orig_sighup_handler;
 	syslog(LOG_INFO, "registered signals");
