@@ -102,7 +102,7 @@ public:
 
 
 struct syslog_closer{
-	syslog_closer() = default;
+	syslog_closer(){}
 	syslog_closer(const syslog_closer&) = delete;
 	~syslog_closer(){
 		closelog();
