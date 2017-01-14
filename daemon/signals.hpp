@@ -20,9 +20,9 @@
 // https://en.wikipedia.org/wiki/Unix_signal#SIGHUP
 
 enum reload_conf_stat : sig_atomic_t {
-	done, // should be first "valid" status, reset to this status when finische loading configuration
-	reload, // intermediary status while loading configuration
-	reloading, // should be last "valid" status, used for avoiding to update config when already updating it
+	done,      // reset to this status when finished loading configuration
+	reload,    // the event loop will reload the cofiguration if this value has been set
+	reloading, // intermediary status while loading configuration, used for avoiding to update config when already updating it
 };
 
 static volatile sig_atomic_t g_reload_conf_flag = reload_conf_stat::done;
@@ -35,9 +35,9 @@ inline void handle_SIGHUP(const int sig){
 	const char msg[] = "received SIGHUP signal";
 	write(1, msg, sizeof(msg)-1); // strlen is not "signal safe" on posix, 1 is stdout
 #endif
-	 // do not update if reloading or already set on reload
+	 // do not update if reloading or already set on reload (and therefore not reloaded yet)
 	auto new_flag = g_reload_conf_flag;
-	new_flag = (new_flag == reload_conf_stat::done) ? reload_conf_stat::reloading : new_flag;
+	new_flag = (new_flag == reload_conf_stat::done) ? reload_conf_stat::reload : new_flag;
 	g_reload_conf_flag = new_flag;
 }
 
