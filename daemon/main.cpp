@@ -113,7 +113,7 @@ int main(const int argc, char* const argv[]) try {
 
 	// Never ending loop of server
 	int counter = 0;
-	while (g_sig_int_flag == sig_term_stat::not_received) {
+	while (g_sig_term_flag == sig_term_stat::not_received) {
 		// check if we need to reload configuration
 		if(g_reload_conf_flag == reload_conf_stat::reload){
 			const update_flag up(g_reload_conf_flag, reload_conf_stat::reloading, reload_conf_stat::done);
@@ -135,7 +135,7 @@ int main(const int argc, char* const argv[]) try {
 
 	}
 
-	assert(g_sig_int_flag == sig_term_stat::received && "we should have received a sig_int signal!");
+	assert(g_sig_term_flag == sig_term_stat::received && "we should have received a sig_term signal!");
 	syslog(LOG_INFO, "stopping daemon");
 
 
@@ -147,6 +147,6 @@ int main(const int argc, char* const argv[]) try {
 	std::cerr << "Failed with ex: " << ex.what() << "\n";
 	return EXIT_FAILURE;
 }catch(...){
-	std::cerr << "Failed with unknown exception\n";
+    std::cerr << "Failed with unknown exception\n";
 	throw; // rethrow, we may get some further information from the runtime
 }

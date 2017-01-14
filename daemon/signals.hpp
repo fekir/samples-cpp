@@ -47,7 +47,7 @@ enum sig_term_stat : sig_atomic_t{
 	not_received,
 	received,
 };
-static volatile sig_atomic_t g_sig_int_flag = sig_term_stat::not_received;
+static volatile sig_atomic_t g_sig_term_flag = sig_term_stat::not_received;
 inline void handle_SIGTERM(const int sig){
 	assert(sig == SIGTERM && "signal handler not registered corretcly");
 	if (sig != SIGTERM) {
@@ -57,7 +57,7 @@ inline void handle_SIGTERM(const int sig){
 	const char msg[] = "received SIGINT signal";
 	write(STDOUT_FILENO, msg, sizeof(msg)-1); // strlen is not "signal safe" on posix
 #endif
-	g_sig_int_flag = sig_term_stat::received;
+	g_sig_term_flag = sig_term_stat::received;
 	// reset original signal handler, if for some reason our main loop takes to much time to exit,
 	// a second SIGINT will terminate the program
 	auto this_sigint = signal(SIGTERM, orig_sigterm);
