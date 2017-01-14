@@ -33,7 +33,7 @@ inline void handle_SIGHUP(const int sig){
 	}
 #if !defined(NDEBUG)
 	const char msg[] = "received SIGHUP signal";
-	write(1, msg, sizeof(msg)-1); // strlen is not "signal safe" on posix, 1 is stdout
+	write(STDOUT_FILENO, msg, sizeof(msg)-1); // strlen is not "signal safe" on posix, 1 is stdout
 #endif
 	 // do not update if reloading or already set on reload (and therefore not reloaded yet)
 	auto new_flag = g_reload_conf_flag;
