@@ -42,21 +42,26 @@ inline void handle_SIGHUP(const int sig){
 }
 
 
-enum sig_int_stat : sig_atomic_t{
+__sighandler_t orig_sigterm = nullptr;
+enum sig_term_stat : sig_atomic_t{
 	not_received,
 	received,
 };
-static volatile sig_atomic_t g_sig_int_flag = sig_int_stat::not_received;
-inline void handle_SIGINT(const int sig){
-	assert(sig == SIGINT && "signal handler not registered corretcly");
-	if (sig != SIGINT) {
+static volatile sig_atomic_t g_sig_int_flag = sig_term_stat::not_received;
+inline void handle_SIGTERM(const int sig){
+	assert(sig == SIGTERM && "signal handler not registered corretcly");
+	if (sig != SIGTERM) {
 		return;
 	}
 #if !defined(NDEBUG)
 	const char msg[] = "received SIGINT signal";
 	write(STDOUT_FILENO, msg, sizeof(msg)-1); // strlen is not "signal safe" on posix
 #endif
-	g_sig_int_flag = sig_int_stat::received;
+	g_sig_int_flag = sig_term_stat::received;
+	// reset original signal handler, if for some reason our main loop takes to much time to exit,
+	// a second SIGINT will terminate the program
+	auto this_sigint = signal(SIGTERM, orig_sigterm);
+	(void)this_sigint;
 }
 
 #endif

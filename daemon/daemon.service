@@ -5,10 +5,12 @@ Description=Sample daemon program
 Type=forking
 PIDFile=/var/run/daemon.pid
 ExecStart=/usr/bin/daemon \
-    --config_file /etc/daemon/daemon.conf \
+	--config_file /etc/daemon/daemon.conf \
 	--pid_file /var/run/daemon.pid \
 	--daemon
 ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -TERM $MAINPID
 
 [Install]
 WantedBy=multiuser.agent
+

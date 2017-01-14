@@ -105,17 +105,15 @@ int main(const int argc, char* const argv[]) try {
 		return EXIT_FAILURE;
 	}
 
-	// register signals
-	signal(SIGINT, handle_SIGINT);
-	signal(SIGHUP, handle_SIGHUP);
+	// register signals, and save original sigint so that we can reset it later
+	orig_sigterm = signal(SIGINT, handle_SIGTERM);
+	auto orig_sighup_handler = signal(SIGHUP, handle_SIGHUP);
+	(void)orig_sighup_handler;
 	syslog(LOG_INFO, "registered signals");
-
-	// This global variable can be changed in function handling signal
-	g_sig_int_flag = sig_int_stat::not_received;
 
 	// Never ending loop of server
 	int counter = 0;
-	while (g_sig_int_flag == sig_int_stat::not_received) {
+	while (g_sig_int_flag == sig_term_stat::not_received) {
 		// check if we need to reload configuration
 		if(g_reload_conf_flag == reload_conf_stat::reload){
 			const update_flag up(g_reload_conf_flag, reload_conf_stat::reloading, reload_conf_stat::done);
@@ -133,13 +131,11 @@ int main(const int argc, char* const argv[]) try {
 			syslog(LOG_INFO, "daemon running (%d)", counter++);
 		}
 
-		// Real server should use select() or poll() for waiting at async event.
-		// Note: sleep() is interrupted, when signal is received.
 		sleep(conf.delay);
 
 	}
 
-	assert(g_sig_int_flag == sig_int_stat::received && "we should have received a sig_int signal!");
+	assert(g_sig_int_flag == sig_term_stat::received && "we should have received a sig_int signal!");
 	syslog(LOG_INFO, "stopping daemon");
 
 
@@ -151,6 +147,6 @@ int main(const int argc, char* const argv[]) try {
 	std::cerr << "Failed with ex: " << ex.what() << "\n";
 	return EXIT_FAILURE;
 }catch(...){
-std::cerr << "Failed with unknown exception\n";
-throw; // rethrow, we may get some further information from the runtime
+	std::cerr << "Failed with unknown exception\n";
+	throw; // rethrow, we may get some further information from the runtime
 }
