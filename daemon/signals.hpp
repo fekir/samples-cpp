@@ -15,7 +15,6 @@
 
 /// signal handlers
 // https://www.securecoding.cert.org/confluence/pages/viewpage.action?pageId=3903
-// https://stackoverflow.com/questions/16891019/how-to-avoid-using-printf-in-a-signal-handler
 
 /// reloads configuration:
 // https://en.wikipedia.org/wiki/Unix_signal#SIGHUP
@@ -42,15 +41,12 @@ inline void handle_SIGHUP(const int sig){
 	g_reload_conf_flag = new_flag;
 }
 
-
-__sighandler_t orig_sigterm = nullptr;
 enum sig_term_stat : sig_atomic_t{
 	not_received,
 	received,
 };
 static volatile sig_atomic_t g_sig_term_flag = sig_term_stat::not_received;
 inline void handle_SIGTERM(const int sig){
-	syslog(LOG_WARNING, "handlesigterm");
 	assert(sig == SIGTERM && "signal handler not registered corretcly");
 	if (sig != SIGTERM) {
 		return;
@@ -60,10 +56,6 @@ inline void handle_SIGTERM(const int sig){
 	write(STDOUT_FILENO, msg, sizeof(msg)-1); // strlen is not "signal safe" on posix
 #endif
 	g_sig_term_flag = sig_term_stat::received;
-	// reset original signal handler, if for some reason our main loop takes to much time to exit,
-	// a second SIGTERM will terminate the program
-	//auto this_sigterm = signal(SIGTERM, orig_sigterm);
-	//(void)this_sigterm;
 }
 
 #endif

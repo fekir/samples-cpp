@@ -105,10 +105,25 @@ int main(const int argc, char* const argv[]) try {
 		return EXIT_FAILURE;
 	}
 
-	// register signals, and save original sigterm so that we can reset it later
-	orig_sigterm = signal(SIGTERM, handle_SIGTERM);
-	auto orig_sighup_handler = signal(SIGHUP, handle_SIGHUP);
-	(void)orig_sighup_handler;
+	// using sigaction to mitigate possbile exploits as describer here
+	// https://www.securecoding.cert.org/confluence/display/cplusplus/SIG01-CPP.+Understand+implementation-specific+details+regarding+signal+handler+persistence
+	struct sigaction act_term;
+	act_term.sa_handler = handle_SIGTERM;
+	act_term.sa_flags = SA_RESETHAND;
+
+	if (sigemptyset(&act_term.sa_mask) != 0 || sigaction(SIGTERM, &act_term, nullptr) != 0) {
+		syslog(LOG_INFO, "unable to register signal for SIGTERM");
+		return EXIT_FAILURE;
+	}
+
+	struct sigaction act_hup;
+	act_hup.sa_handler = handle_SIGHUP;
+
+	if (sigemptyset(&act_hup.sa_mask) != 0 || sigaction(SIGHUP, &act_hup, nullptr) != 0) {
+		syslog(LOG_INFO, "unable to register signal for SIGHUP");
+		return EXIT_FAILURE;
+	}
+
 	syslog(LOG_INFO, "registered signals");
 
 	// Never ending loop of server
