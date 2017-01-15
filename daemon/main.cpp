@@ -21,7 +21,6 @@ struct config{
 	// put here all configurations of the service
 	unsigned int delay = 0;
 };
-std::string conf_file_name;
 
 const char daemon_name[] = "my_daemon";
 
@@ -56,6 +55,7 @@ int main(const int argc, char* const argv[]) try {
 	bool daemonize = false; // easier to debug since it avoid forking
 
 	config conf;
+	std::string conf_file_name;
 
 	// FIXME: process all command line arguments
 	while ((value = getopt_long(argc, argv, "c:p:d:h", options, &option_index)) != -1) {
