@@ -17,13 +17,7 @@ if( CMAKE_SYSTEM_NAME STREQUAL "Windows" )
 	target_link_libraries(${PROJECT_NAME} winscard)
 else()
 	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(PCSC REQUIRED libpcsclite )
-
-	message("ldflags:   ${PCSC_LDFLAGS}")
-	message("ldflags_o: ${PCSC_LDFLAGS_OTHER}")
-	message("include_d: ${PCSC_INCLUDE_DIRS}")
-	message("cflags:    ${PCSC_CFLAGS}")
-	message("cflags_o:  ${PCSC_CFLAGS_OTHER}")
+	pkg_check_modules(PCSC REQUIRED libpcsclite)
 
 	include_directories(SYSTEM ${PCSC_INCLUDE_DIRS})
 	set_target_properties(${PROJECT_NAME}
