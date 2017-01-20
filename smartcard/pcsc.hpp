@@ -355,7 +355,7 @@ inline std::vector<std::string> explode(const wchar_t* zz_str) {
 	std::wstring_convert<convert_type, wchar_t> converter;
 	std::vector<std::string> to_return;
 	auto pdata = zz_str;
-	while (*pdata != '\0') {
+	while (*pdata != L'\0') {
 		const auto len = std::wcslen(pdata);
 		if (len > 0) {
 			std::wstring tmp(pdata, len);
