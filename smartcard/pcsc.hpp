@@ -170,20 +170,16 @@ struct unique_SCARDHANDLE {
 	}
 
 	~unique_SCARDHANDLE(){
-		if(handle != invalid_handle){
-			using u_type = std::underlying_type<close_mode>::type;
-			const auto res = ::SCardDisconnect(handle, static_cast<u_type>(m));
-			(void) res;
-		}
+		reset();
 	}
 	// modifiers
-	SCARDHANDLE release(){
+	SCARDHANDLE release() noexcept {
 		const auto old = handle;
 		handle = invalid_handle;
 		return old;
 	}
 
-	void reset(SCARDHANDLE h = {}){
+	void reset(SCARDHANDLE h = invalid_handle) noexcept {
 		const auto old = handle;
 		handle = h;
 		if(old != invalid_handle){
@@ -201,7 +197,7 @@ struct unique_SCARDHANDLE {
 	SCARDHANDLE get() const noexcept {
 		return handle;
 	}
-	explicit operator bool() const{
+	explicit operator bool() const noexcept {
 		return handle != invalid_handle;
 	}
 };
@@ -224,19 +220,16 @@ struct unique_SCARDCONTEXT {
 	}
 
 	~unique_SCARDCONTEXT(){
-		if(context != invalid_context){
-			const auto res = ::SCardReleaseContext(context);
-			(void) res;
-		}
+		reset();
 	}
 	// modifiers
-	SCARDCONTEXT release(){
+	SCARDCONTEXT release() noexcept {
 		const auto old = context;
 		context = invalid_context;
 		return old;
 	}
 
-	void reset(SCARDCONTEXT h = {}){
+	void reset(SCARDCONTEXT h = invalid_context) noexcept {
 		const auto old = context;
 		context = h;
 		if(old != invalid_context){
@@ -252,7 +245,7 @@ struct unique_SCARDCONTEXT {
 	SCARDCONTEXT get() const noexcept {
 		return context;
 	}
-	explicit operator bool() const{
+	explicit operator bool() const noexcept {
 		return context != invalid_context;
 	}
 };
@@ -273,7 +266,7 @@ struct transaction_closer {
 		}
 	}
 
-	void release(){
+	void release() noexcept {
 		hCard = invalid_handle;
 	}
 
