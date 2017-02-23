@@ -7,20 +7,22 @@ add_compile_options(-std=c++14)
 
 ##################################################################
 # compiler warnings, should be enabled on every project
-# unline on msvc -Wall does not enable all warnings
+# unlike msvc, -Wall does not enable all warnings
 
 # generic warnings
-add_compile_options(-Wall -Wextra -pedantic -Wmain -Wunreachable-code -Wunused -Wunknown-pragmas)
+add_compile_options(-Wall -Wextra -pedantic -Wmain -Wunreachable-code -Wunused -Wunknown-pragmas -Werror=return-type)
 
 # multiple declaration, shadowing, eval undefined identifier
-add_compile_options(-Wshadow)
-add_compile_options(-Wundef -Wredundant-decls)
+add_compile_options(-Wshadow -Wundef -Wredundant-decls)
 
 # class/structs and init
 add_compile_options(-Wnon-virtual-dtor -Wctor-dtor-privacy -Wnon-virtual-dtor -Wreorder -Wuninitialized)
 if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 6)
 	add_compile_options(-Werror=init-self -Werror=memset-transposed-args)
+elseif(CMAKE_CXX_COMPILER_VERSION LESSER_EQUAL 4)
+	add_compile_options(-Wno-missing-field-initializers) # otherwise S s = {}; issues warning
 endif()
+
 
 # switch/branches
 add_compile_options(-Wswitch-default -Wswitch-enum)
@@ -44,7 +46,9 @@ add_compile_options(-Wlogical-op)
 # possible code structure problem
 add_compile_options(-Wdisabled-optimization)
 
-# branches
+# printf
+add_compile_options(-Werror=format)
+add_compile_options(-Werror=format-security)
 
 # operations on booleans
 if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 6)
@@ -74,12 +78,6 @@ endif()
 # project structure
 add_compile_options(-Wmissing-include-dirs)
 
-##################################################################
-# errors
-add_compile_options(-Werror=format)
-add_compile_options(-Werror=format-security)
-add_compile_options(-Werror=return-type)
-add_compile_options(-Wno-missing-field-initializers)
 
 ##################################################################
 # additional debug informations
@@ -123,14 +121,15 @@ if(PROFILE)
 endif()
 
 ##################################################################
-# mitigations (
+# mitigations
 # abort and provide some useful message instead of ignoring errors, crash at another random place or leave some vulnerability open
 option(FORTIFY "Enable fortify sources (already enabled in release mode)" OFF)
 if(FORTIFY)
 	message(" ===== Enable fortify sources (always enabled in release mode) ===== ")
 	add_definitions(-D_FORTIFY_SOURCE=2 -O2)
 endif()
-# if compiling with -O1 we should use -D_FORTIFY_SOURCE=1...
+# add check if compiling with -O1, in that case we should use -D_FORTIFY_SOURCE=1...
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_FORTIFY_SOURCE=2") # =1 when using -O1..
 
 # add option for relro, pie,
+
