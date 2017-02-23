@@ -47,7 +47,7 @@ int main(const int argc, char* const argv[]) try {
 	    {"help", no_argument, nullptr, 'h'},
 	    {"daemon", no_argument, nullptr, 'd'},
 	    {"pid_file", required_argument, nullptr, 'p'},
-	    {nullptr, 0, 0, 0}
+	    {nullptr, 0, nullptr, '\0'}
 	};
 	int value = 0;
 	int option_index = 0;
