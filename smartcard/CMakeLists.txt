@@ -4,9 +4,6 @@ project(smartcard)
 
 set (CMAKE_CXX_STANDARD 11)
 
-set(SRC_FILES
-)
-
 add_executable(${PROJECT_NAME}
 	pcsc.hpp
 	main.cpp
