@@ -8,25 +8,60 @@ add_compile_options(-std=c++14)
 ##################################################################
 # compiler warnings, should be enabled on every project
 # unline on msvc -Wall does not enable all warnings
+
+# generic warnings
 add_compile_options(-Wall -Wextra -pedantic -Wmain -Wunreachable-code -Wunused -Wunknown-pragmas)
-# multiple declaration, shadowing, undef
+
+# multiple declaration, shadowing, eval undefined identifier
 add_compile_options(-Wshadow)
 add_compile_options(-Wundef -Wredundant-decls)
+
 # class/structs and init
-add_compile_options(-Wnon-virtual-dtor -Wctor-dtor-privacy -Wnon-virtual-dtor -Wreorder -Winit-self -Wuninitialized)
-# switch
+add_compile_options(-Wnon-virtual-dtor -Wctor-dtor-privacy -Wnon-virtual-dtor -Wreorder -Wuninitialized)
+if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 6)
+	add_compile_options(-Werror=init-self -Werror=memset-transposed-args)
+endif()
+
+# switch/branches
 add_compile_options(-Wswitch-default -Wswitch-enum)
+if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 6)
+	add_compile_options(-Wduplicated-cond)
+	if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 7)
+		add_compile_options(-Wduplicated-branches)
+	endif()
+endif()
+
 # nullptr and casts warnings (may generate a lot of warnings when interacting with old code or C code)
 add_compile_options(-Wzero-as-null-pointer-constant -Wold-style-cast -Wuseless-cast)
 add_compile_options(-Wnonnull -Wcast-qual -Wcast-align -Wformat=2)
+
 # arithmetic/numeric warnings
 add_compile_options(-Wfloat-equal -Wsign-compare -Wconversion -Wsign-promo)
+
 # logical operations
 add_compile_options(-Wlogical-op)
+
 # possible code structure problem
 add_compile_options(-Wdisabled-optimization)
 
+# branches
 
+# operations on booleans
+if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 6)
+	add_compile_options(-Werror=bool-compare)
+	if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 7)
+		add_compile_options(-Werror=bool-operation -Wint-in-bool-context)
+	endif()
+endif()
+
+# inheritance
+add_compile_options(-Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override)
+
+# memory
+add_compile_options(-Werror=vla -Werror=array-bounds)
+if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 7)
+	add_compile_options(-Walloc-zero -Walloca)
+endif()
 
 option(EFFCXX "Enable Effective C++ Warnings (very noisy on correct c++11 code)"  OFF)
 if(EFFCXX)
