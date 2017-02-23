@@ -4,13 +4,10 @@ project(CalculatePI CXX)
 
 find_package(MPI REQUIRED)
 
-include_directories(${MPI_CXX_INCLUDE_PATH})
-
-set(SOURCE_FILES )
+include_directories(SYSTEM ${MPI_CXX_INCLUDE_PATH})
 
 add_executable(${PROJECT_NAME} 
 	main.cpp
-	${SOURCE_FILES}
 )
 target_link_libraries(${PROJECT_NAME} 
 	${MPI_CXX_LIBRARIES}

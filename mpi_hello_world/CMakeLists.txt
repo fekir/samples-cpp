@@ -4,13 +4,11 @@ project(MPIHelloWorld CXX)
 
 find_package(MPI REQUIRED)
 
-include_directories(${MPI_CXX_INCLUDE_PATH})
+include_directories(SYSTEM ${MPI_CXX_INCLUDE_PATH})
 
-set(SOURCE_FILES )
 
 add_executable(${PROJECT_NAME} 
 	main.cpp
-	${SOURCE_FILES}
 )
 target_link_libraries(${PROJECT_NAME} 
 	${MPI_CXX_LIBRARIES}
