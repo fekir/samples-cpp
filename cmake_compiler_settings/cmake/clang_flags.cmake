@@ -17,6 +17,7 @@ add_compile_options(-Wno-weak-vtables)
 add_compile_options(-pedantic-errors)                  # treat language extension as errors
 add_compile_options(-Wno-system-headers)               # disable warnings from system headers
 add_compile_options(-Werror=extra-tokens)              # treat extra tokens as errors
+add_compile_options(-Werror=newline-eof)
 
 ##################################################################
 # sanitizers (checks made at runtime)
@@ -66,3 +67,4 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_FORTIFY_SOURCE=2") # 
 add_compile_options(-fstack-protector-all)
 
 # add option for relro, pie,
+

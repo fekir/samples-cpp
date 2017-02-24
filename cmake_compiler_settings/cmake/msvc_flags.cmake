@@ -56,7 +56,6 @@ endif()
 
 ##################################################################
 # compiler errors
-# try add_compile_options
 add_compile_options(/we4129)                 # unrecognized character
 add_compile_options(/we4130)                 # comparing address with string
 add_compile_options(/we4114 /we4141)         # same qualifier more than once
@@ -88,7 +87,7 @@ endif()
 add_compile_options(/GS)                  # Buffer Security Check
 add_compile_options(/Gs)                  # Control Stack Checking Calls
 add_compile_options(/guard:cf)            # Enable Control Flow Guard (also passed to linker)
-add_compile_options(/sdl)                 # already added
+add_compile_options(/sdl)                 # add some warnings/error and runtime checks
 
 option(enable_rtcc "Enable RTCc (may reject conformant code)" OFF)
 if(enable_rtcc)
@@ -113,3 +112,4 @@ add_compile_options("$<$<CONFIG:RELEASE>:/OPT:REF>")   # eliminates functions or
 # char buf[10];strcpy(buf, "test"); -> char buf[10];strcopy_s(buf, 10, "test");
 # as a side effect it can also remove some deprecation warning and we may avoid to define _NONSTDC_NO_WARNINGS
 add_definitions(/D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1)
+

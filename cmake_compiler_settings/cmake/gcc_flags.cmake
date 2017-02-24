@@ -47,8 +47,7 @@ add_compile_options(-Wlogical-op)
 add_compile_options(-Wdisabled-optimization)
 
 # printf
-add_compile_options(-Werror=format)
-add_compile_options(-Werror=format-security)
+add_compile_options(-Werror=format -Werror=format-security)
 
 # operations on booleans
 if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 6)

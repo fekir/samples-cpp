@@ -9,9 +9,9 @@ add_definitions(-DNOMINMAX)                # removes min and max macro, use std:
 add_definitions(-DSTRICT)                  # enable strict mode (adds more typesafety, for exmaple replacing some typedef with structs)
 
 # Copied from windows.h, they may differ from version to version
-# Remove functions or defines, unlike WIN32_LEAN_AND_MEAN removing support it's not like a missing header
+# Removes functions or defines. Unlike WIN32_LEAN_AND_MEAN removing support it's not like a missing header that you can add afterwards
 # Should add option for the most commont variables that may be needed
-add_definitions(-DNOGDICAPMASKS)           # CC_*, LC_*, PC_*, CP_*, TC_*, RC_
+add_definitions(-DNOGDICAPMASKS)           # CC_*, LC_*, PC_*, CP_*, TC_*, RC_*
 add_definitions(-DNOVIRTUALKEYCODES)       # VK_*
 add_definitions(-DNOWINMESSAGES)           # WM_*, EM_*, LB_*, CB_*
 add_definitions(-DNOWINSTYLES)             # WS_*, CS_*, ES_*, LBS_*, SBS_*, CBS_*
