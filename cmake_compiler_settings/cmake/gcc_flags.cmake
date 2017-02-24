@@ -10,7 +10,7 @@ add_compile_options(-std=c++14)
 # unlike msvc, -Wall does not enable all warnings
 
 # generic warnings
-add_compile_options(-Wall -Wextra -pedantic -Wmain -Wunreachable-code -Wunused -Wunknown-pragmas -Werror=return-type)
+add_compile_options(-Wall -Wextra -pedantic-errors -Wmain -Wunreachable-code -Wunused -Wunknown-pragmas -Werror=return-type)
 
 # multiple declaration, shadowing, eval undefined identifier
 add_compile_options(-Wshadow -Wundef -Wredundant-decls)
@@ -62,7 +62,8 @@ endif()
 add_compile_options(-Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override)
 
 # memory
-add_compile_options(-Werror=vla -Werror=array-bounds)
+# write-strings seems to get overritten by pedantic
+add_compile_options(-Werror=vla -Werror=array-bounds -Werror=write-strings)
 if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 7)
 	add_compile_options(-Walloc-zero -Walloca)
 endif()
@@ -72,7 +73,6 @@ if(EFFCXX)
 	message(" ===== Adding Effective C++ Warnings")
 	add_compile_options(-Weffc++)
 endif()
-
 
 ##################################################################
 # project structure
