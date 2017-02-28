@@ -163,3 +163,10 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-check")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pie -fpie -fpic -fPIC")
+
+if( CMAKE_SYSTEM_NAME STREQUAL "Windows" )
+    # enable ASLR
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,dynamicbase ")
+	# enable DEP
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,nxcompat")
+endif()
