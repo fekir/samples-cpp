@@ -145,5 +145,11 @@ endif()
 # add check if compiling with -O1, in that case we should use -D_FORTIFY_SOURCE=1...
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_FORTIFY_SOURCE=2") # =1 when using -O1..
 
-# add option for relro, pie,
+option(RELRO "Enable full relro" OFF)
+if(RELRO)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,relro,-z,now")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,relro")
+endif()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pie -fpie")
