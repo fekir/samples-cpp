@@ -47,7 +47,7 @@ add_compile_options(-Wzero-as-null-pointer-constant -Wold-style-cast -Wuseless-c
 add_compile_options(-Wnonnull -Wcast-qual -Wcast-align -Werror=null-dereference)
 
 # arithmetic/numeric warnings
-add_compile_options(-Wfloat-equal -Wsign-compare -Wconversion -Wsign-promo -Werror=shift-overflow)
+add_compile_options(-Wfloat-equal -Wsign-compare -Wconversion -Wsign-promo -Werror=shift-overflow -ftrapv)
 
 # logical operations
 add_compile_options(-Wlogical-op)
