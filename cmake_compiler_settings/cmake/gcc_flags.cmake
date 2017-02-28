@@ -58,7 +58,7 @@ add_compile_options(-Wdisabled-optimization)
 # formatting
 add_compile_options(-Wformat=2 -Werror=format -Werror=format-security -Werror=format-extra-args)
 
-#exception safety
+# exception safety
 add_compile_options(-Werror=terminate)
 
 # operations on booleans
@@ -83,7 +83,7 @@ endif()
 
 option(EFFCXX "Enable Effective C++ Warnings (very noisy on correct c++11 code)"  OFF)
 if(EFFCXX)
-	message(" ===== Adding Effective C++ Warnings")
+	message(" ===== Enabled Effective C++ Warnings =====")
 	add_compile_options(-Weffc++)
 endif()
 
@@ -97,21 +97,21 @@ add_compile_options(-Wmissing-include-dirs)
 # additional debug informations
 option(DEBUG_ITERATORS "Additional debug information" OFF)
 if(DEBUG_ITERATORS)
+    message(" ===== Enabled additional debug information for iterators =====")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC")
 endif()
 
 
-
 ##################################################################
 # sanitizers (checks made at runtime)
-# You can choose only one
+# You can choose only one(!)
 set(SanitizerValues "NONE;SANADD;SANUNDEF;SANTHREAD" CACHE STRING
 	"List of possible values for the sanitizers")
 set(SanValue "SANUNDEF" CACHE STRING
 	"SanValue chosen by the user at CMake configure time")
 set_property(CACHE SanValue PROPERTY STRINGS ${SanitizerValues})
 
-# not using add_compile_options since since needs flag also for linking
+# not using add_compile_options since since flag is also used by the linker
 if("${SanValue}" STREQUAL "SANADD")
 	message(" ===== Enable sanitizer for addresses ===== ")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
@@ -132,17 +132,18 @@ endif()
 ##################################################################
 # mitigations
 # abort and provide some useful message instead of ignoring errors, crash at another random place or leave some vulnerability open
-option(FORTIFY "Enable fortify sources (already enabled in release mode)" OFF)
+option(FORTIFY "Enable fortify sources (already enabled for release target, also enables optimizations)" OFF)
 if(FORTIFY)
-	message(" ===== Enable fortify sources (always enabled in release mode) ===== ")
+	message(" ===== Enable fortify sources (always enabled for release target, also enables optimizations) ===== ")
 	add_definitions(-D_FORTIFY_SOURCE=2 -O2)
 endif()
-# add check if compiling with -O1, in that case we should use -D_FORTIFY_SOURCE=1...
+# FIXME: add check if compiling with -O1, in that case we should use -D_FORTIFY_SOURCE=1...
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_FORTIFY_SOURCE=2") # =1 when using -O1..
 
-# not using add_compile_options since since needs flag also for linking
+# not using add_compile_options since since flag is also used by the linker
 option(RELRO "Enable full relro" OFF)
 if(RELRO)
+    message(" ===== Enabled full relro =====")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,relro,-z,now")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,relro")
@@ -150,6 +151,7 @@ endif()
 
 option(STACK_PROTECTOR "Enable stack protector on all functions")
 if(STACK_PROTECTOR)
+    message(" ===== Enabling full stack protector =====")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-protector-all")
 else()
     if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 5)
