@@ -123,11 +123,6 @@ elseif("${SanValue}" STREQUAL "SANTHREAD")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
 endif()
 
-
-# Check if incompatible with the others
-# trap/sanitizer settings
-#set(SAN_FLAGS "${SAN_FLAGS}  -ftrapv -fstack-check -fstack-protector")
-
 option(PROFILE "Enable profiling" OFF)
 if(PROFILE)
 	message(" ===== Enable profiling ===== ")
@@ -145,11 +140,24 @@ endif()
 # add check if compiling with -O1, in that case we should use -D_FORTIFY_SOURCE=1...
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -D_FORTIFY_SOURCE=2") # =1 when using -O1..
 
+# not using add_compile_options since since needs flag also for linking
 option(RELRO "Enable full relro" OFF)
 if(RELRO)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,relro,-z,now")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,relro")
 endif()
+
+option(STACK_PROTECTOR "Enable stack protector on all functions")
+if(STACK_PROTECTOR)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-protector-all")
+else()
+    if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 5)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-protector-strong")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-protector")
+    endif()
+endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-check")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pie -fpie -fpic -fPIC")
