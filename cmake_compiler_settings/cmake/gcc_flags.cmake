@@ -20,12 +20,12 @@ add_compile_options(-Werror=multichar -Werror=address -Werror=sequence-point -We
 add_compile_options(-Werror=pointer-arith -fno-nonansi-builtins -fstrict-enums -fvisibility-inlines-hidden)
 
 # multiple declaration, shadowing, eval undefined identifier
-add_compile_options(-Wshadow -Wundef -Wredundant-decls)
+add_compile_options(-Wshadow -Wundef -Werror=redundant-decls)
 
 add_compile_options(-Werror=ignored-qualifiers)
 
 # class/structs and init
-add_compile_options(-Wnon-virtual-dtor -Wctor-dtor-privacy -Werror=non-virtual-dtor -Werror=reorder -Werror=uninitialized -Werror=maybe-uninitialized -Werror=delete-non-virtual-dtor)
+add_compile_options(-Wctor-dtor-privacy -Werror=non-virtual-dtor -Werror=reorder -Werror=uninitialized -Werror=maybe-uninitialized -Werror=delete-non-virtual-dtor)
 if(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 6)
 	add_compile_options(-Werror=init-self -Werror=memset-transposed-args)
 elseif(CMAKE_CXX_COMPILER_VERSION LESSER_EQUAL 4)
@@ -47,7 +47,7 @@ add_compile_options(-Wzero-as-null-pointer-constant -Wold-style-cast -Wuseless-c
 add_compile_options(-Wnonnull -Wcast-qual -Wcast-align -Werror=null-dereference)
 
 # arithmetic/numeric warnings
-add_compile_options(-Wfloat-equal -Wsign-compare -Wconversion -Wsign-promo -Werror=shift-overflow -ftrapv)
+add_compile_options(-Wfloat-equal -Wsign-compare -Werror=conversion  -Wsign-promo -Werror=shift-overflow -ftrapv)
 
 # logical operations
 add_compile_options(-Wlogical-op)
@@ -165,7 +165,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-check")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pie -fpie -fpic -fPIC")
 
 if( CMAKE_SYSTEM_NAME STREQUAL "Windows" )
-    # enable ASLR
+	# enable ASLR
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,dynamicbase ")
 	# enable DEP
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,nxcompat")
