@@ -2,8 +2,8 @@
 # Settings for the GCC Compiler
 
 ##################################################################
-# language, set explicit to avoid using some gnu extension
-add_compile_options(-std=c++14)
+# language, use CMAKE_CXX_STANDARD, CMAKE_CXX_STANDARD_REQUIRED, CXX_EXTENSIONS if possible
+#add_compile_options(-std=c++14)
 
 ##################################################################
 # compiler warnings, should be enabled on every project
