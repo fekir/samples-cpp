@@ -170,3 +170,11 @@ if( CMAKE_SYSTEM_NAME STREQUAL "Windows" )
 	# enable DEP
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,nxcompat")
 endif()
+
+option(CHANGE_CHAR_SIGN "Change sign of char to test code for portability"  OFF)
+if(CHANGE_CHAR_SIGN)
+	set(sign_char_values "-funsigned-char,-fsigned-char" CACHE STRING "List of possible values for the sign of char cache variable")
+	set(sign_char "-fsigned-char" CACHE STRING "Value chosen by the user at configure time")
+	add_compile_options(${sign_char})
+endif()
+
