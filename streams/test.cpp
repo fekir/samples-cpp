@@ -109,3 +109,59 @@ TEST_CASE("string_view", "[string_view]"){
     }
 }
 
+TEST_CASE("file", "[file][istream][ostream]"){
+	// contrary to popular believe, this function works perfectly on windows withtou admin privileges (tested on win 7 and win 10 x64). The msdn documentation states that only on vista those privileges maybe required
+    FILE* f = std::tmpfile(); // opened like "wb+", deleted in all cases (even modern widnows)
+    fileviewbuf_base<3> b(f);
+    std::istream is(&b);
+    const char buffer[] = "hello_world!";
+    SECTION("read content"){
+        ::fwrite(buffer , sizeof(char), std::strlen(buffer), f);
+        ::rewind(f);
+        std::string str;
+        REQUIRE(is >> str);
+        REQUIRE(str == buffer);
+    }
+    SECTION("multiple reads"){
+        ::fwrite(buffer , sizeof(char), std::strlen(buffer), f);
+        ::fwrite(" " , sizeof(char), 1, f); // whitespace used as delimiter
+        ::fwrite(buffer , sizeof(char), std::strlen(buffer), f);
+        ::rewind(f);
+        std::string str;
+        REQUIRE(is >> str);
+        REQUIRE(str == buffer);
+        REQUIRE(is >> str);
+        REQUIRE(str == buffer);
+    }
+
+    SECTION("wrong read content"){
+        ::fwrite(buffer , sizeof(char), std::strlen(buffer), f);
+        ::rewind(f);
+        std::string str;
+        int a{};
+        REQUIRE_FALSE(is >> a);
+    }
+
+
+    SECTION("write content"){
+        fileviewbuf b(f);
+        std::ostream ios(&b);
+        ios << buffer << std::flush; // otherwise content is not yet written to buffer
+        rewind(f);
+        char buffer2[sizeof(buffer)]{};
+        const auto size = fread(buffer2, sizeof(char), std::strlen(buffer), f);
+        REQUIRE(size == std::strlen(buffer));
+        REQUIRE(std::equal(buffer2, buffer2+sizeof(buffer2), buffer));
+    }
+
+    SECTION("write content2"){
+        fileviewbuf b(f);
+        std::ostream ios(&b);
+        ios << 2 << std::flush; // otherwise content is not yet written to buffer
+        rewind(f);
+        char buffer2[1]{};
+        const auto size = fread(buffer2, sizeof(char), std::strlen(buffer), f);
+        REQUIRE(size == 1);
+        REQUIRE(buffer2[0] == '2');
+    }
+}
