@@ -2,7 +2,7 @@
 
 #include "streams.hpp"
 
-TEST_CASE("string_view", "[string_view]"){
+TEST_CASE("string_view", "[string_view][istream]"){
     const char data[] = "123 c 456";
     const auto len = 7;
     streambufview strv(&data[1], len); // no copy!, and '\0'-termination not required
