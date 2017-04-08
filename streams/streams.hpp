@@ -1,14 +1,25 @@
 #ifndef FEK_STREAMS_HPP
 #define FEK_STREAMS_HPP
 
+// windows
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+// libc
 #include <cassert>
 #include <cstring>
 
+// std
 #include <streambuf>
 #include <istream>
 #include <iterator>
 #include <limits>
 #include <array>
+
+#ifdef _WIN32
+#include <vector>
+#endif
 
 // for now-owning istream (istringstream makes a copy)
 class streambufview : public std::streambuf {
@@ -139,5 +150,82 @@ public:
         rdbuf(&f);
     }
 };
+
+#ifdef _WIN32
+inline std::size_t linelen(const char* str) {
+	const char *s;
+	for (s = str; *s != '\0' && *s != '\n'; ++s) {}
+	return(s - str);
+}
+inline std::vector<const char*> create_zzstring_view(std::string& str) {
+	std::vector<const char*> toreturn;
+	for(std::size_t i = 0; i < str.size(); ) {
+		const char* it = &str.at(i);
+		const auto len = linelen(it);
+		if (len > 0) {
+			toreturn.push_back(it);
+		}
+		i += len;
+		if (i < str.size()) {
+			str.at(i) = '\0';
+		}
+		i += 1;
+	}
+	return toreturn;
+}
+void writedata(HANDLE hEventLog, std::string& buffer) { // add other params required by ReportEvent
+	if (buffer.empty()) {
+		return;
+	}
+	auto strings = create_zzstring_view(buffer);
+	const auto num_string = static_cast<WORD>(strings.size());
+
+	const WORD type = EVENTLOG_INFORMATION_TYPE;
+	const WORD category = 0;
+	const DWORD identifier = 0;
+	const PSID usersid = nullptr;
+	const DWORD binarydatasize = 0;
+	void* binarydata = 0;
+	ReportEventA(hEventLog, type, category, identifier, usersid, num_string, binarydatasize, strings.data(), binarydata);
+	buffer.clear();
+}
+
+// source that redirects output to Windows Eventlog
+class eventsource_buffer : public std::streambuf
+{
+	HANDLE hEventSource{};
+	std::string buffer;
+public:
+	explicit eventsource_buffer(const std::string& name) :
+		std::basic_streambuf<char>()
+	{
+		hEventSource = RegisterEventSourceA(nullptr, name.c_str());
+	}
+	virtual ~eventsource_buffer() {
+		writedata(hEventSource, buffer);
+		DeregisterEventSource(hEventSource);
+	}
+
+protected:
+
+	virtual int sync() override // not called when destructing ostream
+	{
+		writedata(hEventSource, buffer);
+		return 0;
+	}
+
+	virtual int_type overflow(int_type c = traits_type::eof()) override
+	{
+		if (traits_type::eq_int_type(c, traits_type::eof())) {
+			sync();
+		}
+		else {
+			buffer += traits_type::to_char_type(c);
+		}
+		return c;
+	}
+};
+
+#endif
 
 #endif

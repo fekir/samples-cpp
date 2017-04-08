@@ -168,3 +168,31 @@ TEST_CASE("file", "[file][istream][ostream]"){
         REQUIRE(buffer2[0] == '2');
     }
 }
+
+
+#ifdef _WIN32
+
+TEST_CASE("eventsource", "[eventsource][ostream]") {
+	eventsource_buffer t("test");
+	std::ostream os(&t);
+	SECTION("single line") {
+		os << "hello world [single line]" << std::endl;
+	}
+	SECTION("multiple lines at once(1)") {
+		os << "hello world [multiple1] 1\n";
+		os << "hello world [multiple2] 2\n";
+		os << "hello world [multiple3] 3\n";
+		os << "hello world [multiple4] 4\n";
+		os << std::flush;
+	}
+	SECTION("multiple lines at once(2)") {
+		os << "hello world [multiple2] 1\n";
+		os << "hello world [multiple2] 2\n";
+		os << "hello world [multiple2] 3\n";
+		os << "hello world [multiple2] 4"; // !
+		os << std::flush;
+	}
+}
+
+
+#endif
