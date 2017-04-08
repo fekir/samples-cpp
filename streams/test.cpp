@@ -113,8 +113,8 @@ TEST_CASE("file", "[file][istream][ostream]"){
 	// std::tmpfile seems to work perfectly on windows without admin privileges 
 	// (tested on win 7 and win 10 x64, even from guest account and UAC to maximum level). 
 	// The msdn documentation states that admin privileges may be required, but only windows vista 
-	// is mentioned as operating system.
-    FILE* f = std::tmpfile(); // opened like "wb+", deleted in all cases (even modern widnows)
+	// is mentioned as operating system. The file is also create in the %TMP% directory and not on the system drive
+    FILE* f = std::tmpfile(); // opened like "wb+", deleted in all cases (even modern windows)
     fileviewbuf_base<3> b(f);
     std::istream is(&b);
     const char buffer[] = "hello_world!";
