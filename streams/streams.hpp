@@ -17,7 +17,7 @@ public:
     streambufview(const char* data, std::size_t len) : m_begin(data), m_end(m_begin + len), m_current(m_begin) { }
     explicit streambufview(const char* data) : streambufview(data, std::strlen(data)) { }
 
-    // FIXME: verify that iterator is randomaccess and of type char
+    // FIXME: verify that iterator is of type char
     template <class it>
     streambufview(it begin_, it end_) : m_begin(&(*begin_), &(*end_)) {
         static_assert(std::is_same<std::random_access_iterator_tag, typename std::iterator_traits<it>::iterator_category>::value,
