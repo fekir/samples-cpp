@@ -124,7 +124,7 @@ inline std::string proto_to_str(const DWORD prot){
 #endif
 #undef FEK_CASE_ERR
 		default:{
-			// apparently SCARD_PROTOCOL_UNSET is equal to SCARD_PROTOCOL_UNDEFINED for backward compatibility
+			// apparently SCARD_PROTOCOL_UNSET is equal to SCARD_PROTOCOL_UNDEFINED for backward compatibility on pcsc, on windows it has a different value
 #ifdef SCARD_PROTOCOL_UNSET
 			if(prot == SCARD_PROTOCOL_UNSET){
 				ss << "SCARD_PROTOCOL_UNSET";
