@@ -173,7 +173,7 @@ inline std::vector<const char*> create_zzstring_view(std::string& str) {
 	}
 	return toreturn;
 }
-void writedata(HANDLE hEventLog, std::string& buffer) { // add other params required by ReportEvent
+void writedata(HANDLE hEventLog, std::string& buffer, const PSID usersid = nullptr) { // add other params required by ReportEvent
 	if (buffer.empty()) {
 		return;
 	}
@@ -183,7 +183,6 @@ void writedata(HANDLE hEventLog, std::string& buffer) { // add other params requ
 	const WORD type = EVENTLOG_INFORMATION_TYPE;
 	const WORD category = 0;
 	const DWORD identifier = 0;
-	const PSID usersid = nullptr;
 	const DWORD binarydatasize = 0;
 	void* binarydata = 0;
 	ReportEventA(hEventLog, type, category, identifier, usersid, num_string, binarydatasize, strings.data(), binarydata);
@@ -195,11 +194,11 @@ class eventsource_buffer : public std::streambuf
 {
 	HANDLE hEventSource{};
 	std::string buffer;
+	const PSID psid = nullptr;
 public:
-	explicit eventsource_buffer(const std::string& name) :
-		std::basic_streambuf<char>()
+	explicit eventsource_buffer(const std::string& name, const PSID psid_ = nullptr) :
+		std::basic_streambuf<char>(), hEventSource(RegisterEventSourceA(nullptr, name.c_str())), psid(psid_)
 	{
-		hEventSource = RegisterEventSourceA(nullptr, name.c_str());
 	}
 	virtual ~eventsource_buffer() {
 		writedata(hEventSource, buffer);
@@ -210,7 +209,7 @@ protected:
 
 	virtual int sync() override // not called when destructing ostream
 	{
-		writedata(hEventSource, buffer);
+		writedata(hEventSource, buffer, psid);
 		return 0;
 	}
 

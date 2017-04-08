@@ -172,8 +172,44 @@ TEST_CASE("file", "[file][istream][ostream]"){
 
 #ifdef _WIN32
 
+// buffer that contains PTOKEN_USER, accessible throug reinterpret_cast, in case of error empty buffer
+std::vector<unsigned char> get_token_user() {
+	std::vector<unsigned char> buffer;
+	HANDLE hToken{}; // FIXME: should use RAII wrapper
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+	{
+		return buffer;
+	}
+
+	DWORD dwBufferSize = 0;
+	if (!GetTokenInformation(hToken, TokenUser, nullptr, 0, &dwBufferSize) && (GetLastError() != ERROR_INSUFFICIENT_BUFFER))
+	{
+		CloseHandle(hToken);
+		return buffer;
+	}
+	assert(dwBufferSize >= sizeof(TOKEN_USER));
+	buffer.resize(dwBufferSize);
+	auto pTokenUser = reinterpret_cast<PTOKEN_USER>(buffer.data());
+
+	if (!GetTokenInformation(hToken, TokenUser, pTokenUser, dwBufferSize, &dwBufferSize))
+	{
+		CloseHandle(hToken);
+		buffer.clear();
+	}
+	buffer.resize(dwBufferSize);
+	return buffer;
+}
+
 TEST_CASE("eventsource", "[eventsource][ostream]") {
-	eventsource_buffer t("test");
+
+	PTOKEN_USER token_user = nullptr;
+	auto buf = get_token_user();
+	if (!buf.empty()) {
+		token_user = reinterpret_cast<PTOKEN_USER>(buf.data());
+		REQUIRE(IsValidSid(token_user->User.Sid));
+	}
+
+	eventsource_buffer t("test", token_user->User.Sid);
 	std::ostream os(&t);
 	SECTION("single line") {
 		os << "hello world [single line]" << std::endl;
