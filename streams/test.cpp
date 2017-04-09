@@ -392,3 +392,21 @@ TEST_CASE("eventsource", "[eventsource][ostream]") {
 
 
 #endif
+
+#include <iostream>
+
+#ifndef _WIN32 // if syslog avaiable
+TEST_CASE("syslog", "[syslog][ostream]") {
+
+	// AFAIK it is not possible to register the calls to syslog (/var/log/syslog and /var/log/messages on my machine), without manually reading the configuration file
+	streamsyslog t("cpp_stream");
+	std::ostream os(&t);
+	const std::string message = "hello world";
+
+	os << msg_prio(LOG_INFO) << message << std::endl;
+	os << msg_prio(LOG_ERR) << message << std::endl;
+	os << msg_prio(LOG_DEBUG) << message << std::endl;
+
+}
+
+#endif

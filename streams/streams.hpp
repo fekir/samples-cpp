@@ -6,6 +6,11 @@
 #include <windows.h>
 #endif
 
+#ifndef _WIN32 // if syslog avaiable
+#include <unistd.h>
+#include <syslog.h>
+#endif
+
 // libc
 #include <cassert>
 #include <cstring>
@@ -226,5 +231,61 @@ protected:
 };
 
 #endif
+
+#ifndef _WIN32 // if syslog avaiable
+class streamsyslog : public std::streambuf
+{
+public:
+	explicit streamsyslog(const char* name) :
+	    std::basic_streambuf<char>()
+	{
+		openlog(name, LOG_PID|LOG_CONS, LOG_DAEMON);
+	}
+	virtual ~streamsyslog() {
+		sync();
+		closelog();
+	}
+
+	int level = LOG_INFO;
+protected:
+
+	int sync() override // not called when destructing ostream
+	{
+		if(!buffer.empty()){
+			syslog(level, "%s", buffer.c_str());
+			buffer.clear();
+		}
+		return 0;
+	}
+
+	int_type overflow(int_type c = traits_type::eof()) override
+	{
+		if (traits_type::eq_int_type(c, traits_type::eof())) {
+			sync();
+		}
+		else {
+			buffer += traits_type::to_char_type(c);
+		}
+		return c;
+	}
+private:
+	std::string buffer;
+};
+
+// it would be nice to have a generic structure over syslog and ReportEvent, but the value are not the sames, and there is no a 1:1 mapping
+struct msg_prio {
+	int prio;
+	explicit msg_prio(const int prio_) : prio(prio_){}
+};
+
+std::ostream& operator<<(std::ostream &os, const msg_prio& lev) {
+	auto b = dynamic_cast<streamsyslog*>(os.rdbuf());
+	if(b){
+		b->level = lev.prio;
+	}
+	return os;
+}
+#endif
+
 
 #endif
