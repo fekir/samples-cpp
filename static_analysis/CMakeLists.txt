@@ -4,7 +4,10 @@ project("static_analysis" CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-add_compile_options(/GS-)
+if(MSVC)
+    add_compile_options(/GS-)
+endif()
+
 add_executable(${PROJECT_NAME} src/main.cpp)
 
 find_package(Cppcheck)
@@ -34,6 +37,21 @@ endif()
 find_package(BinScope)
 if(BINSCOPE_FOUND)
 	analyze_binary_with_binscope(${PROJECT_NAME})
+endif()
+
+find_package(vera++) # apparently does not define VERA++_FOUND
+if(VERA++_EXECUTABLE)
+
+	# taken from https://bitbucket.org/verateam/vera/wiki/Running, but does not work on my machine
+	#include(${VERA++_USE_FILE})
+	#add_vera_targets(*.h *.hpp *.c *.cpp
+	#	RECURSE
+	#	ROOT "${CMAKE_SOURCE_DIR}/src"
+	#)
+
+	get_target_property(sources ${PROJECT_NAME} SOURCES)
+	get_target_property(prop_source_dir ${PROJECT_NAME} SOURCE_DIR)
+	add_custom_target(VERA++_${PROJECT_NAME} vera++ "--show-rule" "--warning" "${sources}" WORKING_DIRECTORY "${prop_source_dir}")
 endif()
 
 # https://github.com/L2Program/FlintPlusPlus
