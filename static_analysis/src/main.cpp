@@ -1,4 +1,5 @@
 
+#include <cstring>
 #include <string>
 
 /// Some documentation
@@ -17,7 +18,7 @@ int main(int argc, char *argv[]){
 
 
 	char dir[1024];
-	strcpy(dir, argv[1]);
-	sprintf(dir, argv[1]);
+	std::strcpy(dir, argv[1]);
+	std::sprintf(dir, argv[1]);
 }
 
