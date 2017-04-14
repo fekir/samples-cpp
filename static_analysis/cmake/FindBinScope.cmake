@@ -19,7 +19,7 @@ function(analyze_binary_with_binscope target)
 
 	add_custom_target(BINSCOPE_${target}
 		COMMAND "${BINSCOPE_EXECUTABLE}" "/nologo" "/outdir" "." $<TARGET_FILE:${PROJECT_NAME}>
-		WORKING_DIRECTORY ${prop_source_dir}
+		WORKING_DIRECTORY ${prop_binary_dir}
 		VERBATIM
 	)
 endfunction()
