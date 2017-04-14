@@ -356,7 +356,7 @@ TEST_CASE("eventsource", "[eventsource][ostream]") {
 
 	SECTION("multiple lines at once(1)") {
 		const std::string message1 = "hello world [multiple1] 1";
-		const std::string message2 = "hello world [multiple2] 2";
+		const std::string message2 = "hello world [multiple1] 2";
 		context ctx;
 
 		{
@@ -372,7 +372,7 @@ TEST_CASE("eventsource", "[eventsource][ostream]") {
 		REQUIRE(count == 2);
 	}
 	SECTION("multiple lines at once(2)") {
-		const std::string message1 = "hello world [multiple1] 1";
+		const std::string message1 = "hello world [multiple2] 1";
 		const std::string message2 = "hello world [multiple2] 2";
 		context ctx;
 

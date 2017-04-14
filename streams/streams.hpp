@@ -178,7 +178,7 @@ inline std::vector<const char*> create_zzstring_view(std::string& str) {
 	}
 	return toreturn;
 }
-void writedata(HANDLE hEventLog, std::string& buffer, const PSID usersid = nullptr) { // add other params required by ReportEvent
+void writedata(HANDLE hEventLog, std::string& buffer, const PSID usersid) { // add other params required by ReportEvent
 	if (buffer.empty()) {
 		return;
 	}
@@ -206,7 +206,7 @@ public:
 	{
 	}
 	virtual ~eventsource_buffer() {
-		writedata(hEventSource, buffer);
+		writedata(hEventSource, buffer, psid);
 		DeregisterEventSource(hEventSource);
 	}
 
