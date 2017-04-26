@@ -9,7 +9,6 @@
 
 // std
 #include <chrono>
-#include <cassert>
 #include <future>
 
 const UINT APP_STATUS_UPDATE = ::RegisterWindowMessageW(L"APP_STATUS_UPDATE");
