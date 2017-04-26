@@ -1,6 +1,8 @@
-
 #include <cstring>
+#include <cstdio>
+
 #include <string>
+#include <map>
 
 /// Some documentation
 struct s{

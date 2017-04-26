@@ -54,6 +54,14 @@ if(VERA++_EXECUTABLE)
 	add_custom_target(VERA++_${PROJECT_NAME} vera++ "--show-rule" "--warning" "${sources}" WORKING_DIRECTORY "${prop_source_dir}")
 endif()
 
+find_program(iwyu_path NAMES include-what-you-use iwyu)
+if(iwyu_path)
+	# automatically executed when building project, not separate target
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+endif()
+
+
+
 # https://github.com/L2Program/FlintPlusPlus
 # add flintplusplus
 
