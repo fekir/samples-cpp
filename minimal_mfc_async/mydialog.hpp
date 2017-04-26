@@ -5,6 +5,8 @@
 
 // mfc
 #include <afxwin.h>
+
+//windows
 #include <windows.h>
 
 // std
@@ -28,7 +30,7 @@ protected:
 		DDX_Control(pDX, IDC_BUTTONTEST, c_buttontest);
 	}
 
-	LRESULT UpdateData(const WPARAM wp, const LPARAM);
+	LRESULT UpdateData(const WPARAM wp, const LPARAM lp);
 
 	void OnBnClickedButtontest();
 

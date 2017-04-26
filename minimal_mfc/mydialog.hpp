@@ -21,7 +21,7 @@ public:
 protected:
 	CButton c_buttontest;
 
-	virtual void DoDataExchange( CDataExchange* pDX) override {
+	virtual void DoDataExchange(CDataExchange* pDX) override {
 		CDialog::DoDataExchange(pDX);
 		DDX_Control(pDX, IDC_BUTTONTEST, c_buttontest);
 	}
