@@ -31,6 +31,7 @@ else()
 	add_compile_options(/wd5026 /wd5027)         # move constructor/operator= deleted
 	add_compile_options(/wd4514)                 # unreferenced inline function has been removed
 	add_compile_options(/wd4625 /wd4626)         # copy constructor deleted
+	add_compile_options(/wd4623)                 # default constructor deleted
 	add_compile_options(/wd4710)                 # function not inlined
 	add_compile_options(/wd4711)                 # function will be inlined
 	add_compile_options(/wd4820)                 # X bytes padding added
@@ -103,7 +104,10 @@ add_compile_options("$<$<CONFIG:RELEASE>:/Zc:inline>") # remove unused code and 
 add_compile_options("$<$<CONFIG:RELEASE>:/Qpar>")      # automatic parallelization of loops
 add_compile_options("$<$<CONFIG:RELEASE>:/Gw>")        # optimize Global Data
 add_compile_options("$<$<CONFIG:RELEASE>:/GL>")        # Whole Program Optimization
-add_compile_options("$<$<CONFIG:RELEASE>:/OPT:REF>")   # eliminates functions or data that is never used
+set (CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /OPT:REF")
+set (CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /OPT:REF")
+set (CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /OPT:REF")
+set (CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO} /OPT:REF")
 
 
 ##################################################################
